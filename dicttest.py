@@ -1,0 +1,42 @@
+def readFile():
+    inläsning = False
+    while inläsning != True:
+            try:
+                filNamn = input("Ange filnamnet på den text du vill läsa in: ")
+                allaOrden = open(filNamn, 'r')
+                inläsning = True
+            except FileNotFoundError:
+                print("Filen du angav finns inte. Försök igen!")
+            except IOError:
+                print("Filen gick inte att läsa in. Försök igen!")
+    return allaOrden
+
+def wordCounter(allaOrden):
+    d = {}
+    for line in allaOrden:
+        words = line.split()
+        for word in words:
+            word = word.lower()
+            if word in d.keys():
+                d[word] += 1
+            else:
+                d[word] = 1
+    print(d)
+    return d
+
+def listMaker(d):
+    li = []
+    for word in d:
+        li.append(word)
+        li.append(d[word])
+    print(li)
+    return li
+        
+
+
+def main():
+    allaOrden = readFile()
+    #d = wordCounter(allaOrden)
+    li = listMaker(wordCounter(allaOrden))
+
+main()

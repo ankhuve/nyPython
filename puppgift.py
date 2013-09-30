@@ -157,7 +157,7 @@ def valCPU(listor):
                 placeringCPU = random.choice(rutor) 
             placeringCPU += randRikt
             kontroll = placeraSkeppCPU(listor, placeringCPU, i)
-    print(tagnaRutorCPU)
+    #print(tagnaRutorCPU)
             
 
 def placeraSkeppCPU(listor, placeringCPU, i):
