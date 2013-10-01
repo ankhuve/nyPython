@@ -21,5 +21,7 @@ for i in range(1,11):
         b.config(image=photo,width="20",height="20")
         b.grid(column=j, row=i, sticky=W)
 Label(text="Det här är spelplanen!").grid(column=1, columnspan=10)
+Label(text="Skjut på ruta").grid(row=13,column=2, columnspan=3)
+Entry(root).grid(row=13, column=5, columnspan=5)
 
 root.mainloop()
