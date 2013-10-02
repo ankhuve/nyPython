@@ -40,15 +40,18 @@ y=0
 ##    else:
 ##        b["bg"]="lightblue"
 
-def color_change(x,y):
-    b=Button(root, bg="green", activebackground="blue", relief=GROOVE, command=lambda x=j, y=i: color_change(x,y))
+def color_change(x,y,b):
+    if b["bg"]=="lightblue":
+        b=Button(root, bg="green", activebackground="blue", relief=GROOVE, command=lambda x=x, y=y: color_change(x,y,b))
+    else:
+        b=Button(root, bg="lightblue", activebackground="blue", relief=GROOVE, command=lambda x=x, y=y: color_change(x,y,b))
     b.config(width="5",height="2")
     b.grid(column=x, row=y)
     
 for i in range(1,11):
     Grid.rowconfigure(root,i,weight=1)
     for j in range(1,11):
-        b=Button(root, bg="lightblue", activebackground="blue", relief=GROOVE, command=lambda x=j, y=i: color_change(x,y))
+        b=Button(root, bg="lightblue", activebackground="blue", relief=GROOVE, command=lambda x=j, y=i: color_change(x,y,b))
         #photo=PhotoImage(file="smiley.gif")
         b.config(width="5",height="2")
         b.grid(column=j, row=i)
