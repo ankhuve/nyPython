@@ -1,13 +1,12 @@
-class ListMaker:
+class ObjectMaker:
     def __init__(self, word, count):
-        self.objekt = []
+        self.object = None
         self.word = word
         self.count = count
 
     def create_object(self, word, count):
-        self.objekt.append(self.word)
-        self.objekt.append(self.count)
-        return self.objekt
+        self.object = word, count
+        return self.object
 
 def readFile():
     read = False
@@ -32,32 +31,28 @@ def counter(allWords):
                 d[word] += 1
             else:
                 d[word] = 1
-    print(d)
     return d
 
-##def listMaker(d):
-##    li = []
-##    for word in d:
-##        li.append(word)
-##        li.append(d[word])
-##    print(li)
-##    return li
-##
-##def printWords(li):
-##    for i in range(0,len(li),2):
-##        print("Ordet", li[i], "fanns", li[i+1], "gånger i texten.")
+def listMaker(d):
+    lista = []
+    for i in d:
+        word = i
+        count = d[i]
+        x = ObjectMaker(word, count)
+        lista.append(x.create_object(word, count))
+    return lista
 
+def sortList(lista):
+    return sorted(lista, key=lambda x: x[1], reverse=True)
+
+def printWords(li):
+    for i in li:
+        print("Ordet", i[0], "fanns", i[1], "gånger i texten.")
+#################################################
 def main():
     allWords = readFile()
     d = counter(allWords)
-    for i in d:
-        ord = i
-        rakn = d[i]
-        x = ListMaker(ord, rakn)
-        lista = x.create_object(ord, rakn)
-    
-    
-    #li = listMaker(counter(allaOrden))
-    #printWords(li)
-
+    sorted_list = sortList(listMaker(d))
+    printWords(sorted_list)
+#################################################
 main()
