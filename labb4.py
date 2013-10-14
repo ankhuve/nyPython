@@ -20,5 +20,4 @@ def raknaOrd():
     print("Orden som lästes in var:\n\n", allaOrd, "\n")
     for i in enskildaOrd:
         print("Antal förekomster av ordet '" + str(i).lower() + "':", allaOrd.count(i))
-
 raknaOrd()

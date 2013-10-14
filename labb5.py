@@ -4,10 +4,6 @@ class ObjectMaker:
         self.word = word
         self.count = count
 
-    def create_object(self, word, count):
-        self.object = word, count
-        return self.object
-
 def readFile():
     read = False
     while read != True:
@@ -38,16 +34,16 @@ def listMaker(d):
     for i in d:
         word = i
         count = d[i]
-        x = ObjectMaker(word, count)
-        lista.append(x.create_object(word, count))
+        x = ObjectMaker(word, count)    # Skapa ett objekt med ordet och antalet gånger det förekommer i texten
+        lista.append(x)
     return lista
 
 def sortList(lista):
-    return sorted(lista, key=lambda x: x[1], reverse=True)
+    return sorted(lista, key=lambda x: x.count, reverse=True)
 
 def printWordCount(li):
     for i in li:
-        print("Ordet", i[0], "fanns", i[1], "gånger i texten.")
+        print("Ordet", i.word, "fanns", i.count, "gånger i texten.")
 
 def printAllWords(allWords):
     print("\nOrden som lästes in var:")
@@ -57,10 +53,10 @@ def printAllWords(allWords):
     print(words, "\n")
 #################################################
 def main():
-    allWords = readFile()
-    d = counter(allWords)
-    printAllWords(d)
-    sorted_list = sortList(listMaker(d))
-    printWordCount(sorted_list)
+    allWords = readFile() # Läser in textfilen som returneras till allWords
+    d = counter(allWords) # Skapar en dictionary med orden och antal gånger de förekommer
+    printAllWords(d)      # Skriv ut varje ord i texten en gång
+    sorted_list = sortList(listMaker(d))    # Sortera listan med avseende på det andra värdet (siffran) och lägg in i en ny lista
+    printWordCount(sorted_list) # Skriv ut den sorterade listan
 #################################################
 main()
