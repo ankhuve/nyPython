@@ -1,7 +1,7 @@
 from tkinter import *
 import time
 SKEPP = [5,4,3,3,2]
-ship = 0
+#ship = 0
 class App:
     def __init__(self):
         self.SKEPP = [5,4,3,3,2]
@@ -123,7 +123,8 @@ def color_change(x,y,b,spread):
 ##    b.config(width="5",height="2")
 ##    b.grid(column=x, row=y)
 
-def createBoard(SKEPP, ship):
+def createBoard(SKEPP):
+    ship=0
     for i in range(1,11):
         Grid.rowconfigure(root,i,weight=1)
         for j in range(1,11):
@@ -144,7 +145,7 @@ def createBoard(SKEPP, ship):
     #Entry(root).grid(row=13, column=5, columnspan=3, sticky=W)
     root.resizable(0,0)
 
-createBoard(SKEPP, ship)
+createBoard(SKEPP)
 
 ##def spread(x,y,b,c):
 ##    if c=="lb":
