@@ -83,8 +83,7 @@ def placeShip(x, y, length, direction, box_list, ship):
     overlap=0
     if direction == "h":
         for j in range(length):
-            print(box_list[y-1][x+j-1].coords)
-            if box_list[y-1][x+j-1].status == 1:
+            if box_list[y-1][x+j-1].status != 0:
                 overlap = 1
         if overlap<1:  
             for i in range(length):
@@ -105,23 +104,17 @@ def placeShip(x, y, length, direction, box_list, ship):
             if box_list[y+j-1][x-1].status != 0:
                 overlap = 1
         if overlap<1:
-            for j in range(length):
-                if box_list[y+j-1][x-1].status != 0:
-                    overlap = True
-                else:
-                    overlap = False
-            if overlap == False:
-                for i in range(length):
-                    b=Button(
-                        root, bg="green",
-                        relief=GROOVE
-                        )
-                    b.config(width="5",height="2")
-                    b.grid(column=x, row=y+i)
-                    time.sleep(0.01)
-                    root.update()
-                    box_list[y+i-1][x-1].status = 1
-                ship[0] += 1
+            for i in range(length):
+                b=Button(
+                    root, bg="green",
+                    relief=GROOVE
+                    )
+                b.config(width="5",height="2")
+                b.grid(column=x, row=y+i)
+                time.sleep(0.01)
+                root.update()
+                box_list[y+i-1][x-1].status = 1
+            ship[0] += 1
                 #Label(text="", bg="lightgreen").grid(row=11, columnspan=11, sticky=E+W)
         else:
             err = messagebox.showinfo("Felaktig placering!", "Placeringen du har valt överlappar ett av dina skepp, försök igen!")
