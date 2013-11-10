@@ -21,7 +21,7 @@ class Game:
         for ship in self.SHIPS:
             placement_check = False
             while placement_check != True:
-                placement_check = self.controlPlacement(box_list, ship)
+                placement_check, direction, x, y = self.controlPlacement(box_list, ship)
             if direction == "h":
                 for n in range(ship):
                     box_list[x-1+n][y-1].status = 1
@@ -49,36 +49,41 @@ class Game:
                             break
                         elif not box_list[x-1+i][y-1].coords:
                             pass
+                        else:
+                            control = True
                     elif direction == "v":
                         if box_list[x-1+i][y-1].status != 0:
                             break
                         elif not box_list[x-1+i][y-1].coords:
                             pass
-
-
+                        else:
+                            control = True
+            except IndexError:
+                break
+        return True, direction, x, y
 
             
-            for i in range(ship):
-                if direction == "h":
-                    try:
-                        if box_list[x-1+i][y-1].status == 0:
-                            print(box_list[x-1+i][y-1].coords)
-                            print(box_list[x-1+i][y-1].status)
-                            return True
-                        else:
-                            return False
-                    except IndexError:
-                        return False
-                elif direction == "v":
-                    try:
-                        if box_list[x-1][y-1+i].status == 0:
-                            print(box_list[x-1][y-1+i].coords)
-                            print(box_list[x-1][y-1+i].status)
-                            return True
-                        else:
-                            return False
-                    except IndexError:
-                        return False
+##            for i in range(ship):
+##                if direction == "h":
+##                    try:
+##                        if box_list[x-1+i][y-1].status == 0:
+##                            print(box_list[x-1+i][y-1].coords)
+##                            print(box_list[x-1+i][y-1].status)
+##                            return True
+##                        else:
+##                            return False
+##                    except IndexError:
+##                        return False
+##                elif direction == "v":
+##                    try:
+##                        if box_list[x-1][y-1+i].status == 0:
+##                            print(box_list[x-1][y-1+i].coords)
+##                            print(box_list[x-1][y-1+i].status)
+##                            return True
+##                        else:
+##                            return False
+##                    except IndexError:
+##                        return False
 
     def fireInTheHole(self, coords, status):
         print(coords)
