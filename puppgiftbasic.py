@@ -8,6 +8,7 @@ class Game:
         Grid.rowconfigure(root,0,weight=1)
         Grid.columnconfigure(root,0,weight=1)
         bokstav = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        self.hits = 0
         
         for k in range(10):
             column = Label(text=bokstav[k], fg="darkgreen", bg="lightgreen").grid(column=k+1, row=0, sticky=N+S+E+W)
@@ -31,13 +32,13 @@ class Game:
                     box_list[x-1][y-1+n].status = 1
                     placed_ships.append(box_list[x-1][y-1+n])
         for obj in placed_ships:
-            print(obj.coords)
-            obj.changeColor("blue")
+            #obj.changeColor("grey") # Fusk!
+            #print(obj.coords)
             pass
         
     def controlPlacement(self, box_list, ship):
         control = False
-        while control != True:
+        while control == False:
             start = random.choice(box_list[random.randint(0,9)])
             x = start.coords[0]
             y = start.coords[1]
@@ -45,59 +46,71 @@ class Game:
             try:
                 for i in range(ship):
                     if direction == "h":
+                        print(box_list[x-1+i][y-1].coords)
                         if box_list[x-1+i][y-1].status != 0:
+                            control = False
                             break
-                        elif not box_list[x-1+i][y-1].coords:
-                            pass
                         else:
                             control = True
                     elif direction == "v":
-                        if box_list[x-1+i][y-1].status != 0:
+                        print(box_list[x-1][y-1+i].coords)
+                        if box_list[x-1][y-1+i].status != 0:
+                            control = False
                             break
-                        elif not box_list[x-1+i][y-1].coords:
-                            pass
                         else:
                             control = True
+                if control == True: ## Kolla runt omkring skeppet
+                    try:
+                        if direction == "h":
+                            for i in range(ship):
+                                print("    ",box_list[x-1+i][y-2].status,"\n",
+                                      box_list[x-2+i][y-1].status,box_list[x-1+i][y-1].coords,box_list[x+i][y-1].status,"\n",
+                                      "   ",box_list[x-1+i][y].status)
+                                if (
+                                    box_list[x-2+i][y-1].status != 0 # vänster
+                                    or box_list[x-1+i][y-2].status != 0 # ovanför
+                                    or box_list[x+i][y-1].status != 0 # höger
+                                    or box_list[x-1+i][y].status != 0 # under
+                                    ):
+                                    control = False
+                                    break
+                                else:
+                                    control = True
+                        elif direction == "v":
+                            for i in range(ship):
+                                print("    ",box_list[x-1][y-2+i].status,"\n",
+                                      box_list[x-2][y-1+i].status,box_list[x-1][y-1+i].coords,box_list[x][y-1+i].status,"\n",
+                                      "   ",box_list[x-1][y+i].status)
+                                if (
+                                    box_list[x-2][y-1+i].status != 0 # vänster
+                                    or box_list[x-1][y-2+i].status != 0 # ovanför
+                                    or box_list[x][y-1+i].status != 0 # höger
+                                    or box_list[x-1][y+i].status != 0 # under
+                                    ):
+                                    control = False
+                                    break
+                                else:
+                                    control = True
+                    except IndexError:
+                        print("utanför spelplan runtom")
+                        return False, direction, x, y
+                return control, direction, x, y
             except IndexError:
-                break
-        return True, direction, x, y
-
-            
-##            for i in range(ship):
-##                if direction == "h":
-##                    try:
-##                        if box_list[x-1+i][y-1].status == 0:
-##                            print(box_list[x-1+i][y-1].coords)
-##                            print(box_list[x-1+i][y-1].status)
-##                            return True
-##                        else:
-##                            return False
-##                    except IndexError:
-##                        return False
-##                elif direction == "v":
-##                    try:
-##                        if box_list[x-1][y-1+i].status == 0:
-##                            print(box_list[x-1][y-1+i].coords)
-##                            print(box_list[x-1][y-1+i].status)
-##                            return True
-##                        else:
-##                            return False
-##                    except IndexError:
-##                        return False
+                print("utanför spelplan!")
+                return False, direction, x, y
 
     def fireInTheHole(self, coords, status):
         print(coords)
         print(box_list[coords[0]-1][coords[1]-1].status)
         if box_list[coords[0]-1][coords[1]-1].status == 1:
-            b=Button(
-                root, bg="green",
-                relief=GROOVE
-                )
-            b.config(width="5",height="2")
-            b.grid(column=coords[0], row=coords[1])
-            root.update()
             box_list[coords[0]-1][coords[1]-1].status = 3
-            
+            box_list[coords[0]-1][coords[1]-1].changeColor("red")
+            self.hits += 1
+        else:
+            box_list[coords[0]-1][coords[1]-1].status = 2
+            box_list[coords[0]-1][coords[1]-1].changeColor("white")
+        if self.hits==(17):
+            root.destroy()
 class Box(Game):
     def __init__(self, coords, root, color):
         self.status = 0
