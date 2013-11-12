@@ -11,13 +11,7 @@ class Game:
         root.title("Sänka Skepp")
         Grid.rowconfigure(root,0,weight=1)
         Grid.columnconfigure(root,0,weight=1)
-        columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-        
-
-##        self.cheatbutton = Button(root, bg="lightgreen", command=self.cheat(placed_ships))
-##        self.cheatbutton.config(width="5", height="1")
-##        self.cheatbutton.grid(column=9, row=11)
-        
+        columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]        
         for c in range(10):
             Label(text=columns[c], fg="darkgreen", bg="#95E895").grid(column=c+1, row=0, sticky=N+S+E+W)
         Label(text="", bg="#95E895").grid(column=0, row=0, sticky=N+S+E+W)
@@ -26,7 +20,6 @@ class Game:
         self.randomizeShipPlacement(box_list, self.placed_ships)
             
     def randomizeShipPlacement(self, box_list, placed_ships):
-        ##placed_ships = []
         for ship in self.SHIPS:
             placement_check = False
             while placement_check != True:
@@ -40,10 +33,6 @@ class Game:
                     box_list[x-1][y-1+n].status = 1
                     placed_ships.append(box_list[x-1][y-1+n])
         self.createCheatButton(placed_ships)
-##        for obj in placed_ships:
-##            obj.changeColor("grey") # Fusk!
-##            #print(obj.coords)
-##            pass
         
     def controlPlacement(self, box_list, ship):
         control = False
@@ -70,9 +59,6 @@ class Game:
                     try:
                         if direction == "h":
                             for i in range(ship):
-##                                print("    ",box_list[x-1+i][y-2].status,"\n",
-##                                      box_list[x-2+i][y-1].status,box_list[x-1+i][y-1].coords,box_list[x+i][y-1].status,"\n",
-##                                      "   ",box_list[x-1+i][y].status)
                                 if (
                                     box_list[x-2+i][y-1].status != 0 # vänster
                                     or box_list[x-1+i][y-2].status != 0 # ovanför
@@ -85,9 +71,6 @@ class Game:
                                     control = True
                         elif direction == "v":
                             for i in range(ship):
-##                                print("    ",box_list[x-1][y-2+i].status,"\n",
-##                                      box_list[x-2][y-1+i].status,box_list[x-1][y-1+i].coords,box_list[x][y-1+i].status,"\n",
-##                                      "   ",box_list[x-1][y+i].status)
                                 if (
                                     box_list[x-2][y-1+i].status != 0 # vänster
                                     or box_list[x-1][y-2+i].status != 0 # ovanför
@@ -119,8 +102,6 @@ class Game:
         self.updateStats(self.shots, self.hits)
         if self.hits==(17):
             self.endGame()
-            ##self.highScorePopup(self.shots, self.hits)
-            root.destroy()
             
     def updateStats(self, shots, hits):
         try:
@@ -131,43 +112,80 @@ class Game:
         Label(text=str(self.shots), fg="darkgreen", bg="#95E895").grid(row=12, column=9, sticky=E+W+N+S)
             
     def endGame(self):
-        self.high_scores = self.readFile()
-        self.high_scores.seek(0)
-        hs_list = self.high_scores.read()
-        for line in hs_list:
-            entries = line.split("\n")
-        print(entries)
-        self.highScorePopup(self.shots, self.hits)
+        top_ten_pct = self.readFile()
+        if (self.hits/self.shots)*100 > top_ten_pct[-1]:
+            self.highScorePopup(self.shots, self.hits)
+        else:
+            print("Du kvalade inte till high-scoren....")
+            root.destroy()
+##        self.high_scores = self.readFile()
+##        self.high_scores.seek(0)
+##        hs_list = self.high_scores.read()
+##        entries = hs_list.split("\n")
+##        print(entries)
+        #self.highScorePopup(self.shots, self.hits)
             
     def readFile(self):
-        read = False
-        while read != True:
-            try:
-                high_scores = open("highscores.txt", "a+")
-                read = True
-            except IOError:
-                print("High-score-listan gick inte att läsa in. Försök igen!")
-        return high_scores
+        text = open("highscores.txt", "r")
+        info = text.read()
+        d = info.split("\n")
+        d.sort()
+        d.reverse()
+        top_ten = d[:10]
+        percentage_list = []
+        for entry in top_ten:
+            percentage_list.append(float(entry[:4]))
+        return percentage_list
+    
+##        read = False
+##        while read != True:
+##            try:
+##                text = open("highscores.txt", "r")
+##                read = True
+##            except IOError:
+##                print("High-score-listan gick inte att läsa in. Försök igen!")
+##        return high_scores
 
     def highScorePopup(self, shots, hits):
         accuracy = (self.hits/self.shots)*100
-        popup = Toplevel()
-        popup.title("Grattis!")
+        self.popup = Toplevel()
+        self.popup.title("Grattis!")
         text = Label(
-            popup, text="Grattis, du lyckades ta dig in på high-score-listan!\nVar god ange ditt namn i rutan nedanför.",
+            self.popup, text="Grattis, du lyckades ta dig in på high-score-listan!\nVar god ange ditt namn i rutan nedanför.",
             bg="lightgreen", fg="darkgreen").grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
-        entry = Entry(popup).grid(row=3, sticky=E+W+N+S)
+        name = StringVar()
+        entry = Entry(self.popup, textvariable=name).grid(row=3, sticky=E+W+N+S)
         ok_button = Button(
-            popup, text="OK!", fg="darkgreen", bg="lightgreen",
-            command=lambda name=entry.get(), accuracy=str(accuracy)[:4]: self.highScoreEntry(name, accuracy, popup, self.high_scores)
+            self.popup, text="OK!", fg="darkgreen", bg="lightgreen",
+            command=lambda accuracy=str(accuracy)[:4]: self.highScoreEntry(accuracy, self.popup, name)
             )
         ok_button.grid(column=1, row=3, sticky=E+W)
-        popup.mainloop()
+        self.popup.resizable(0,0)
+        self.popup.mainloop()
 
-    def highScoreEntry(self, name, accuracy, popup, hs_list):
-        self.high_scores.write(name+"|"+accuracy)
-        popup.destroy()
-            
+    def highScoreEntry(self, accuracy, popup, name):
+        text = open("highscores.txt", "r")
+        info = text.read()
+        d = info.split("\n")
+        d.append(accuracy+"|"+name.get())
+        d.sort()
+        d.reverse()
+        text = open("highscores.txt", "w+")
+
+        for i in d:
+            text.write(i+"\n")
+        [print(str(d.index(line)+1)+". "+str(line)) for line in d[:10]]
+        text.close()
+        
+        self.popup.destroy()
+        root.destroy()
+##        
+##        print(name.get(), accuracy)
+##        self.high_scores.write(accuracy+"|"+name.get()+"\n")
+##        self.high_scores.close()
+##        self.popup.destroy()
+##        root.destroy()
+
     def createCheatButton(self, placed_ships):
         self.cheatbutton = Button(
             root, text="fuska lite..",fg="#95E895", bg="#95E895", relief=FLAT,
@@ -188,8 +206,6 @@ class Game:
                     obj.changeColor("grey") # Visa skeppen
             self.toggle_cheat = True
 
-    
-            
 class Box(Game):
     def __init__(self, coords, root, color):
         self.status = 0
@@ -225,5 +241,3 @@ def createGrid():
 root=Tk()
 box_list = createGrid()
 game = Game(root, box_list)
-
-
