@@ -174,6 +174,7 @@ class Game:
 
         for i in d:
             text.write(i+"\n")
+        print("Detta är de tio bästa resultaten:")
         [print(str(d.index(line)+1)+". "+str(line)) for line in d[:10]]
         text.close()
         
