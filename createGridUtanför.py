@@ -2,17 +2,13 @@ from tkinter import *
 import random
 
 class Game:
-    def __init__(self, root):
+    def __init__(self, root, box_list):
         self.SHIPS = [5,4,3,3,2]
         self.shots = 0
         self.hits = 0
         self.toggle_cheat = False
         self.placed_ships = []
         root.title("Sänka Skepp")
-        self.box_list = self.createGrid()
-        self.randomizeShipPlacement(self.box_list, self.placed_ships)
-
-    def createGrid(self):
         Grid.rowconfigure(root,0,weight=1)
         Grid.columnconfigure(root,0,weight=1)
         columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]        
@@ -21,18 +17,7 @@ class Game:
         Label(text="", bg="#95E895").grid(column=0, row=0, sticky=N+S+E+W)
         for r in range(1,11):
             Label(text=r, fg="darkgreen", bg="#95E895").grid(column=0, row=r, sticky=N+S+E+W)
-        box_list = []
-        for i in range(1,11):
-            row = []
-            for j in range(1,11):
-                coords = (i,j)
-                row.append(Box(coords, root, "lightblue"))
-            box_list.append(row)
-        Label(text="Klicka på rutorna ovan för att skjuta!", fg="darkgreen", bg="#95E895").grid(columnspan=11, sticky=E+W+S+N)
-        Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895").grid(column=0, columnspan=5, sticky=E+W+S+N)
-        Label(text="Antal försök:", fg="darkgreen", bg="#95E895").grid(column=5, row=12, columnspan=6, sticky=E+W+S+N)
-        root.resizable(0,0)
-        return box_list
+        self.randomizeShipPlacement(box_list, self.placed_ships)
             
     def randomizeShipPlacement(self, box_list, placed_ships):
         for ship in self.SHIPS:
@@ -57,12 +42,12 @@ class Game:
             y = start.coords[1]
             direction = random.choice(["h", "v"])
             try:
-                for i in range(ship): ## Kolla om det kommer överlappa
+                for i in range(ship):
                     if direction == "h":
                         if box_list[x-1+i][y-1].status != 0:
                             control = False
                             break
-                        else:                       # MÅSTE SNYGGAS TILL FÖR FAN
+                        else:
                             control = True
                     elif direction == "v":
                         if box_list[x-1][y-1+i].status != 0:
@@ -77,12 +62,12 @@ class Game:
                                 if (
                                     box_list[x-2+i][y-1].status != 0 # vänster
                                     or box_list[x-1+i][y-2].status != 0 # ovanför
-                                    or box_list[x+i][y-1].status != 0 # höger       
+                                    or box_list[x+i][y-1].status != 0 # höger
                                     or box_list[x-1+i][y].status != 0 # under
                                     ):
                                     control = False
                                     break
-                                else:                                   # MÅSTE SNYGGAS TILL FÖR FAN
+                                else:
                                     control = True
                         elif direction == "v":
                             for i in range(ship):
@@ -102,16 +87,15 @@ class Game:
             except IndexError:
                 return False, direction, x, y
 
-    def fireInTheHole(self, coords, status, box_list):
-        box = box_list[coords[0]-1][coords[1]-1]
-        if box.status == 1:
-            box.status = 3
-            box.changeColor("red")
+    def fireInTheHole(self, coords, status):
+        if box_list[coords[0]-1][coords[1]-1].status == 1:
+            box_list[coords[0]-1][coords[1]-1].status = 3
+            box_list[coords[0]-1][coords[1]-1].changeColor("red")
             self.hits += 1
             self.shots += 1
-        elif box.status == 0:
-            box.status = 2
-            box.changeColor("white")
+        elif box_list[coords[0]-1][coords[1]-1].status == 0:
+            box_list[coords[0]-1][coords[1]-1].status = 2
+            box_list[coords[0]-1][coords[1]-1].changeColor("white")
             self.shots += 1
         else:
             pass
@@ -168,7 +152,7 @@ class Game:
         self.popup.title("Grattis!")
         text = Label(
             self.popup, text="Grattis, du lyckades ta dig in på high-score-listan!\nVar god ange ditt namn i rutan nedanför.",
-            bg="lightgreen", fg="darkgreen", font=("", 12)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=10)
+            bg="lightgreen", fg="darkgreen").grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=10)
         name = StringVar()
         entry = Entry(self.popup, textvariable=name).grid(row=3, sticky=E+W+N+S)
         
@@ -253,7 +237,7 @@ class Box(Game):
             root, bg=color,
             activebackground="blue",
             relief=GROOVE, cursor="target",
-            command=lambda coords=self.coords, status=self.status: game.fireInTheHole(coords, status, game.box_list)
+            command=lambda coords=self.coords, status=self.status: game.fireInTheHole(coords, status)
             )
         self.button.config(width="5",height="2")
         self.button.grid(column=self.coords[0], row=self.coords[1])
@@ -262,21 +246,21 @@ class Box(Game):
     def changeColor(self, color):
         self.button.configure(bg=color)
 
-##def createGrid():
-##    box_list = []
-##    for i in range(1,11):
-##        row = []
-##        for j in range(1,11):
-##            coords = (i,j)
-##            row.append(Box(coords, root, "lightblue"))
-##        box_list.append(row)
-##    Label(text="Klicka på rutorna ovan för att skjuta!", fg="darkgreen", bg="#95E895").grid(columnspan=11, sticky=E+W+N+S)
-##    Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895").grid(column=0, columnspan=5, sticky=E+W+S+N)
-##    Label(text="Antal försök:", fg="darkgreen", bg="#95E895").grid(column=5, row=12, columnspan=6, sticky=E+W+S+N)
-##    root.resizable(0,0)
-##    return box_list
+def createGrid():
+    box_list = []
+    for i in range(1,11):
+        row = []
+        for j in range(1,11):
+            coords = (i,j)
+            row.append(Box(coords, root, "lightblue"))
+        box_list.append(row)
+    Label(text="Klicka på rutorna ovan för att skjuta!", fg="darkgreen", bg="#95E895").grid(columnspan=11, sticky=E+W+N+S)
+    Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895").grid(column=0, columnspan=5, sticky=E+W+S+N)
+    Label(text="Antal försök:", fg="darkgreen", bg="#95E895").grid(column=5, row=12, columnspan=6, sticky=E+W+S+N)
+    root.resizable(0,0)
+    return box_list
 
 
 root=Tk()
-##box_list = createGrid()
-game = Game(root)
+box_list = createGrid()
+game = Game(root, box_list)
