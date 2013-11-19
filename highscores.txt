@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 45.9|Sannnaaaaa
 42.5|LORD WASHINGTON
 42.5|Erik
@@ -13,6 +14,26 @@
 29.3|Hitler
 29.3|Erik
 27.8|LORD WASHINGTON
+=======
+85.0% | grrrr
+85.0% | Pewptiepanscht
+77.2% | 6h6
+62.9% | EFFEFE
+45.9% | Sannnaaaaa
+42.5% | LORD WASHINGTON
+42.5% | Erik
+40.4% | Kassem
+36.9% | Erik
+35.4% | Kassem
+35.4% | Anne-Frank
+34.6% | Erik
+34.0% | Adam
+32.6% | Goebbels
+29.3% | Hitler
+29.3% | Erik
+27.8% | LORD WASHINGTON
+
+>>>>>>> a266d0e77563bc3f71be65ee9c663bc3ab56c372
 
 
 
