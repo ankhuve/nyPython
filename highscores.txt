@@ -2,13 +2,20 @@
 42.5|LORD WASHINGTON
 42.5|Erik
 40.4|Kassem
+39.5|Niklas
+37.7|Marcus The Master of Masters
 35.4|Kassem
 35.4|Anne-Frank
 34.6|Erik
 34.0|Adam
+33.3|Arvid
 32.6|Goebbels
 29.3|Hitler
 29.3|Erik
 27.8|LORD WASHINGTON
+
+
+
+
 
 
