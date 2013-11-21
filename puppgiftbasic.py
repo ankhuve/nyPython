@@ -32,6 +32,7 @@ class Game:
         Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895").grid(row=12, column=0, columnspan=5, sticky=E+W+S+N)
         Label(text="Antal försök:", fg="darkgreen", bg="#95E895").grid(row=12, column=5, columnspan=6, sticky=E+W+S+N)
         root.resizable(0,0)
+        self.createCheatButton(self.placed_ships)
         return box_list
             
     def randomizeShipPlacement(self, box_list, placed_ships):
@@ -47,7 +48,7 @@ class Game:
                 for n in range(ship):
                     box_list[x-1][y-1+n].status = 1
                     placed_ships.append(box_list[x-1][y-1+n])
-        self.createCheatButton(placed_ships)
+##        self.createCheatButton(placed_ships)
         
     def controlPlacement(self, box_list, ship):
         control = False
@@ -129,6 +130,7 @@ class Game:
             
     def endGameCheck(self):
         top_ten_pct = self.readFile()
+        print(top_ten_pct)
         if (self.hits/self.shots)*100 > top_ten_pct[-1]:
             self.highScorePopup(self.shots, self.hits)
         else:
@@ -149,25 +151,27 @@ class Game:
         self.__init__(root)
             
     def readFile(self):
+##        text = open("highscores.txt", "r")
+##        info = text.read()
+##        d = info.split("\n")
+##        d.sort()
+##        d.reverse()
+##        top_ten = d[:10]
+##        percentage_list = []
+##        for entry in top_ten:
+##            percentage_list.append(float(entry[:4]))
+##        return percentage_list
+
         text = open("highscores.txt", "r")
         info = text.read()
-        d = info.split("\n")
-        d.sort()
-        d.reverse()
-        top_ten = d[:10]
-        percentage_list = []
-        for entry in top_ten:
-            percentage_list.append(float(entry[:4]))
-        return percentage_list
-    
-##        read = False
-##        while read != True:
-##            try:
-##                text = open("highscores.txt", "r")
-##                read = True
-##            except IOError:
-##                print("High-score-listan gick inte att läsa in. Försök igen!")
-##        return high_scores
+        hs_dict = {}
+        for entry in info.replace("%", "").splitlines():
+            entry = entry.split(" | ")
+            hs_dict[entry[0]] = entry[1]
+        sorted_hs = sorted(hs_dict.items(), key=lambda a: float(a[0]), reverse=True)
+        top_ten_pct = []
+        [top_ten_pct.append(float(sorted_hs[i][0])) for i in range(10)]
+        return top_ten_pct
 
     def highScorePopup(self, shots, hits):
         accuracy = (self.hits/self.shots)*100
@@ -190,6 +194,13 @@ class Game:
     def highScoreEntry(self, accuracy, popup, name):
         text = open("highscores.txt", "r")
         info = text.read()
+        
+        hs_dict = {}
+        for entry in info.replace("%", "").splitlines():
+            entry = entry.split(" | ")
+            hs_dict[entry[0]] = entry[1]
+        sorted_hs = sorted(hs_dict.items(), key=lambda a: float(a[0]), reverse=True)
+        
         d = info.split("\n")
         d.append(accuracy+"% | "+name.get())
         d.sort()
@@ -232,11 +243,11 @@ class Game:
         self.cheatbutton.grid(column=9, columnspan=2, row=11)
 
     def cheat(self, placed_ships, toggle_cheat):
-        if self.toggle_cheat == True:
+        if self.toggle_cheat == True: # Om fusket är påslaget
             for obj in placed_ships:
                 if obj.status == 1:
                     obj.changeColor("lightblue") # Dölj skeppen
-            self.toggle_cheat = False
+            self.toggle_cheat = False # Om fusket är avslaget
         else:
             for obj in placed_ships:
                 if obj.status == 1:
