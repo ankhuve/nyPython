@@ -48,7 +48,6 @@ class Game:
                 for n in range(ship):
                     box_list[x-1][y-1+n].status = 1
                     placed_ships.append(box_list[x-1][y-1+n])
-##        self.createCheatButton(placed_ships)
         
     def controlPlacement(self, box_list, ship):
         control = False
@@ -73,6 +72,7 @@ class Game:
                             control = True
                 if control == True: ## Kolla runt omkring skeppet
                     try:
+                        
                         if direction == "h":
                             for i in range(ship):
                                 if (
@@ -87,6 +87,7 @@ class Game:
                                     control = True
                         elif direction == "v":
                             for i in range(ship):
+                                check = controlBorders(direction)
                                 if (
                                     box_list[x-2][y-1+i].status != 0 # vänster
                                     or box_list[x-1][y-2+i].status != 0 # ovanför
@@ -102,6 +103,20 @@ class Game:
                 return control, direction, x, y
             except IndexError:
                 return False, direction, x, y
+##    def controlBorders(self, direction):   EXPERIMENTELLT
+##        if direction == "h":
+##            check_list = [(x-2+i, y-1),(x-1+i, y-2),(x+i, y-1),(x-1+i, y)]
+##        elif direction == "v":
+##            check_list = [(x-2, y-1+i),(x-1, y-2+i),(x, y-1+i),(x-1, y+i)]
+##
+##        for i in range(ship):
+##            for i in check_list:
+##                if box_list[i[0]][i[1]].status != 0:
+##                    control = False
+##                    break
+##        
+##        return check_list
+        
 
     def fireInTheHole(self, coords, status, box_list):
         box = box_list[coords[0]-1][coords[1]-1]
@@ -129,19 +144,13 @@ class Game:
         Label(text=str(self.shots), fg="darkgreen", bg="#95E895").grid(row=12, column=9, sticky=E+W+N+S)
             
     def endGameCheck(self):
-        top_ten_pct = self.readFile()
+        top_ten_pct = self.getTopTen(self.readFile())
         print(top_ten_pct)
         if (self.hits/self.shots)*100 > top_ten_pct[-1]:
             self.highScorePopup(self.shots, self.hits)
         else:
             print("Du kvalade inte till high-scoren....")
             self.exitGame()
-##        self.high_scores = self.readFile()
-##        self.high_scores.seek(0)
-##        hs_list = self.high_scores.read()
-##        entries = hs_list.split("\n")
-##        print(entries)
-        #self.highScorePopup(self.shots, self.hits)
 
     def exitGame(self):
         root.destroy()
@@ -151,27 +160,20 @@ class Game:
         self.__init__(root)
             
     def readFile(self):
-##        text = open("highscores.txt", "r")
-##        info = text.read()
-##        d = info.split("\n")
-##        d.sort()
-##        d.reverse()
-##        top_ten = d[:10]
-##        percentage_list = []
-##        for entry in top_ten:
-##            percentage_list.append(float(entry[:4]))
-##        return percentage_list
-
         text = open("highscores.txt", "r")
-        info = text.read()
-        hs_dict = {}
-        for entry in info.replace("%", "").splitlines():
+        self.info = text.read()
+        return self.info
+
+    def getTopTen(self, info):
+        hs_list = []
+        for entry in info.splitlines():
             entry = entry.split(" | ")
-            hs_dict[entry[0]] = entry[1]
-        sorted_hs = sorted(hs_dict.items(), key=lambda a: float(a[0]), reverse=True)
+            hs_list.append((entry[0],entry[1]))
+        sorted_hs = sorted(hs_list, key=lambda a: float(a[0]), reverse=True)
+        
         top_ten_pct = []
         [top_ten_pct.append(float(sorted_hs[i][0])) for i in range(10)]
-        return top_ten_pct
+        return top_ten_pct # Kanske kan returnera sorted_hs istället och ta [10] vid kontrollen?
 
     def highScorePopup(self, shots, hits):
         accuracy = (self.hits/self.shots)*100
@@ -192,37 +194,27 @@ class Game:
         self.popup.mainloop()
 
     def highScoreEntry(self, accuracy, popup, name):
-        text = open("highscores.txt", "r")
-        info = text.read()
-        
-        hs_dict = {}
-        for entry in info.replace("%", "").splitlines():
+        hs_list = []
+        for entry in self.info.splitlines():
             entry = entry.split(" | ")
-            hs_dict[entry[0]] = entry[1]
-        sorted_hs = sorted(hs_dict.items(), key=lambda a: float(a[0]), reverse=True)
-        
-        d = info.split("\n")
-        d.append(accuracy+"% | "+name.get())
-        d.sort()
-        d.reverse()
-        text = open("highscores.txt", "w+")
-
-        for i in d:
-            text.write(i+"\n")
-        #print("Detta är de tio bästa resultaten:")
-        #[print(str(d.index(line)+1)+". "+str(line)) for line in d[:10]]
-        text.close()
-        self.listHighScores(d)
+            hs_list.append((entry[0],entry[1]))
+        hs_list.append((accuracy, name.get()))
+        sorted_hs = sorted(hs_list, key=lambda a: float(a[0]), reverse=True)
+        updated_hs = open("highscores.txt", "w+")
+        for i in sorted_hs:
+            updated_hs.write(str(float(i[0]))+" | "+i[1]+"\n")
+        updated_hs.close()
+        self.listHighScores(sorted_hs)
         self.popup.destroy()
         
-    def listHighScores(self, d):
+    def listHighScores(self, sorted_hs):
         high_scores = Toplevel()
         high_scores.title("High-score")
         high_scores.configure(background="lightgreen")
         Label(high_scores, text="Topp tio", font=("Verdana", 16), fg="darkgreen", bg="#81C981").grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
         for i in range(10):
             Label(
-                high_scores, text=str(i+1)+". "+str(d[i]), 
+                high_scores, text=str(i+1)+". "+str(float(sorted_hs[i][0]))+"% | "+str(sorted_hs[i][1]), 
                 bg="#95E895", fg="darkgreen", font=("", 10)).grid(sticky=N+S+W, ipadx=20, columnspan=2)
         ok = Button(
             high_scores, text="Avsluta", fg="darkgreen", bg="#81C981",
@@ -272,21 +264,5 @@ class Box(Game):
     def changeColor(self, color):
         self.button.configure(bg=color)
 
-##def createGrid():
-##    box_list = []
-##    for i in range(1,11):
-##        row = []
-##        for j in range(1,11):
-##            coords = (i,j)
-##            row.append(Box(coords, root, "lightblue"))
-##        box_list.append(row)
-##    Label(text="Klicka på rutorna ovan för att skjuta!", fg="darkgreen", bg="#95E895").grid(columnspan=11, sticky=E+W+N+S)
-##    Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895").grid(column=0, columnspan=5, sticky=E+W+S+N)
-##    Label(text="Antal försök:", fg="darkgreen", bg="#95E895").grid(column=5, row=12, columnspan=6, sticky=E+W+S+N)
-##    root.resizable(0,0)
-##    return box_list
-
-
 root=Tk()
-##box_list = createGrid()
 game = Game(root)
