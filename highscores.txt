@@ -1,13 +1,13 @@
-45.9% | Sannnaaaaa
-42.5% | LORD WASHINGTON
-42.5% | Erik
-40.4% | Kassem
-36.9% | Erik
-35.4% | Kassem
-35.4% | Anne-Frank
-34.6% | Erik
-34.0% | Adam
-32.6% | Goebbels
-29.3% | Hitler
-29.3% | Erik
-27.8% | LORD WASHINGTON
+45.9 | Sannnaaaaa
+42.5 | LORD WASHINGTON
+42.5 | Erik
+40.4 | Kassem
+36.9 | Erik
+35.4 | Kassem
+35.4 | Anne-Frank
+34.6 | Erik
+34.0 | Adam
+32.6 | Goebbels
+29.3 | Hitler
+29.3 | Erik
+27.8 | LORD WASHINGTON
