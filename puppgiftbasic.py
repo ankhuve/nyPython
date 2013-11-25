@@ -1,4 +1,5 @@
 from tkinter import *
+import winsound
 import random
 
 class Game:
@@ -10,17 +11,21 @@ class Game:
         self.toggle_cheat = False
         self.cheater = False
         self.placed_ships = []
+        self.terminal_font = ("terminal", 18, "bold")
         root.title("Sänka Skepp")
         self.box_list = self.createGrid()
         self.randomizeShipPlacement()
+        
+        winsound.PlaySound("ship n stuff.wav", winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP)
+        
 
     def createGrid(self):
         Grid.rowconfigure(root, 0, weight=1)
         Grid.columnconfigure(root, 0, weight=1)
         columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]        
         Label(text="", bg="#95E895").grid(column=0, row=0, sticky=N+S+E+W)
-        [Label(text=columns[c], fg="darkgreen", bg="#95E895").grid(column=c+1, row=0, sticky=N+S+E+W) for c in range(10)]
-        [Label(text=r, fg="darkgreen", bg="#95E895").grid(column=0, row=r, sticky=N+S+E+W) for r in range(1,11)]
+        [Label(text=columns[c], fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(column=c+1, row=0, sticky=N+S+E+W) for c in range(10)]
+        [Label(text=r, fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(column=0, row=r, sticky=N+S+E+W) for r in range(1,11)]
         box_list = []
         for i in range(1,11):
             row = []
@@ -28,9 +33,9 @@ class Game:
                 coords = (i,j)
                 row.append(Box(coords, root, "lightblue"))
             box_list.append(row)
-        self.info = Label(text="Klicka på rutorna ovan för att skjuta!", fg="darkgreen", bg="#95E895", font=("",12,"bold")).grid(row=11 ,columnspan=11, sticky=E+W+S+N)
-        Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895", font=("",10,"bold")).grid(row=12, column=0, columnspan=5, sticky=E+W+S+N)
-        Label(text="Antal skott:", fg="darkgreen", bg="#95E895", font=("",10,"bold")).grid(row=12, column=5, columnspan=6, sticky=E+W+S+N)
+        self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(row=11 ,columnspan=11, sticky=E+W+S+N)
+        Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=0, columnspan=5, sticky=E+W+S+N)
+        Label(text="Antal skott:", fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=5, columnspan=6, sticky=E+W+S+N)
         cheatbutton = self.buttonMaker(root, "fuska lite...", fg="#95E895", bg="#95E895")
         cheatbutton.configure(relief=FLAT, width="7", height="1", command=self.cheat)
         cheatbutton.grid(column=9, columnspan=2, row=11, sticky=E+W)
@@ -52,6 +57,7 @@ class Game:
                     self.placeShip(0, n, x, y)
                 self.ship_list.append(Ship(ship, (x, y), direction))
             self.order += 1
+        
             
     def controlPlacement(self, ship):
         control = False
@@ -72,11 +78,6 @@ class Game:
                 return False, direction, x, y
             return control, direction, x, y
 
-    def placeShip(self, i, j, x, y):
-        self.box_list[x-1+i][y-1+j].status = 1
-        self.box_list[x-1+i][y-1+j].order = self.order
-        self.placed_ships.append(self.box_list[x-1+i][y-1+j])
-            
     def controlBorders(self, i, j, x, y):
         if (
             self.box_list[x-1+i][y-1+j].status != 0 # kolla överlapp
@@ -89,6 +90,11 @@ class Game:
         else:                                   
             control = True
         return control
+
+    def placeShip(self, i, j, x, y):
+        self.box_list[x-1+i][y-1+j].status = 1
+        self.box_list[x-1+i][y-1+j].order = self.order
+        self.placed_ships.append(self.box_list[x-1+i][y-1+j])
 
     def fireInTheHole(self, coords, status):
         box = self.box_list[coords[0]-1][coords[1]-1]
@@ -133,9 +139,9 @@ class Game:
             accuracy = (self.hits/self.shots)*100
         except ZeroDivisionError:
             accuracy = 1
-        Label(text=shot, fg="darkgreen", bg="#95E895", font=("",12,"bold")).grid(row=11, column=2, columnspan=7, sticky=E+W+S+N)
-        Label(text=str(accuracy)[:4]+"%", fg="darkgreen", bg="#95E895").grid(row=12, column=4, sticky=W+N+S)
-        Label(text=str(self.shots), fg="darkgreen", bg="#95E895").grid(row=12, column=9, sticky=W+N+S)
+        Label(text=shot, fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(row=11, column=2, columnspan=7, sticky=E+W+S+N)
+        Label(text=str(accuracy)[:4]+"%", fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=4, sticky=W+N+S)
+        Label(text=str(self.shots), fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=9, sticky=W+N+S)
             
     def endGameCheck(self):
         top_ten_pct = self.getTopTen(self.readFile())
@@ -146,6 +152,7 @@ class Game:
             self.highScorePopup(self.shots, self.hits, "Tyvärr..", "Du lyckades tyvärr inte ta dig in på high-score-listan..")
 
     def exitGame(self):
+        winsound.PlaySound(None, winsound.SND_ASYNC)
         root.destroy()
 
     def restartGame(self, popup):
@@ -252,7 +259,7 @@ class Box(Game):
             relief=GROOVE, cursor="target",
             command=lambda coords=self.coords, status=self.status: game.fireInTheHole(coords, status)
             )
-        self.button.config(width="5",height="2")
+        self.button.config(width="7",height="3")
         self.button.grid(column=self.coords[0], row=self.coords[1])
         Grid.columnconfigure(self.root,self.coords[0],weight=1)
 
@@ -270,4 +277,5 @@ class Ship():
 ### Main ###
 root=Tk()
 game = Game(root)
+root.mainloop()
 ############
