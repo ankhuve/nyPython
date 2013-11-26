@@ -37,9 +37,9 @@ class Game:
         self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg=self.bgcolor, font=self.terminal_font).grid(row=11 ,columnspan=11, sticky=E+W+S+N)
         Label(text="Pricksäkerhet:", fg="darkgreen", bg=self.bgcolor, font=("terminal",18)).grid(row=12, column=0, columnspan=5, sticky=E+W+S+N)
         Label(text="Antal skott:", fg="darkgreen", bg=self.bgcolor, font=("terminal",18)).grid(row=12, column=5, columnspan=6, sticky=E+W+S+N)
-        cheatbutton = self.buttonMaker(root, "fuska lite...", fg=self.bgcolor, bg=self.bgcolor)
+        cheatbutton = self.buttonMaker(root, "fuska lite...", fg=self.bgcolor, bg=self.bgcolor, font=("terminal", 10))
         cheatbutton.configure(relief=FLAT, width="7", height="1", command=self.cheat)
-        cheatbutton.grid(column=9, columnspan=2, row=11, sticky=E+W)
+        cheatbutton.grid(column=9, columnspan=2, row=11, sticky=N+S+E+W, padx=20)
         root.resizable(0,0)
         return box_list
             
@@ -64,8 +64,8 @@ class Game:
         control = False
         while control == False:
             start = random.choice(self.box_list[random.randint(0,9)])
-            x = start.coords[0]
-            y = start.coords[1]
+            x = start.coords[0]-1
+            y = start.coords[1]-1
             direction = random.choice(["h", "v"])
             try:
                 for i in range(ship):
@@ -75,17 +75,19 @@ class Game:
                         control = self.controlBorders(0, i, x, y)
                     if control == False:
                         break
-            except IndexError:
+            except IndexError: # Om skeppet skulle hamna utanför spelplanen
                 return False, direction, x, y
             return control, direction, x, y
 
     def controlBorders(self, i, j, x, y):
+        if x-1+i<0 or y-1+j<0 or x+1+i<0 or y+1+j<0:
+            pass #????
         if (
-            self.box_list[x-1+i][y-1+j].status != 0 # kolla överlapp
-            or self.box_list[x-2+i][y-1+j].status != 0 # vänster
-            or self.box_list[x-1+i][y-2+j].status != 0 # ovanför
-            or self.box_list[x+i][y-1+j].status != 0 # höger       
-            or self.box_list[x-1+i][y+j].status != 0 # under
+            self.box_list[x+i][y+j].status != 0 # kolla överlapp
+            or self.box_list[x-1+i][y+j].status != 0 # vänster
+            or self.box_list[x+i][y-1+j].status != 0 # ovanför
+            or self.box_list[x+1+i][y+j].status != 0 # höger       
+            or self.box_list[x+i][y+1+j].status != 0 # under
             ):
             control = False
         else:                                   
@@ -93,9 +95,9 @@ class Game:
         return control
 
     def placeShip(self, i, j, x, y):
-        self.box_list[x-1+i][y-1+j].status = 1
-        self.box_list[x-1+i][y-1+j].order = self.order
-        self.placed_ships.append(self.box_list[x-1+i][y-1+j])
+        self.box_list[x+i][y+j].status = 1
+        self.box_list[x+i][y+j].order = self.order
+        self.placed_ships.append(self.box_list[x+i][y+j])
 
     def fireInTheHole(self, coords, status):
         box = self.box_list[coords[0]-1][coords[1]-1]
@@ -151,6 +153,30 @@ class Game:
                                 "Grattis, du lyckades ta dig in på high-score-listan!\nVar god ange ditt namn i rutan nedanför.")
         else:
             self.highScorePopup(self.shots, self.hits, "Tyvärr..", "Du lyckades tyvärr inte ta dig in på high-score-listan..")
+            
+    def highScorePopup(self, shots, hits, title, info):
+        accuracy = (self.hits/self.shots)*100
+        self.popup = Toplevel()
+        self.popup.title(title)
+        self.popup.configure(background=self.bgcolor)
+        text = Label(
+            self.popup, text=info,
+            bg=self.bgcolor, fg="darkgreen", font=("terminal", 18)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
+        if title == "Grattis!":
+            name = StringVar()
+            entry = Entry(self.popup, font=("terminal", 18), textvariable=name).grid(row=3, sticky=E+W+N+S, padx=8, pady=8)
+            ok = self.buttonMaker(self.popup)
+            ok.configure(command=lambda accuracy=str(accuracy)[:4]: self.highScoreEntry(accuracy, self.popup, name))
+            ok.grid(column=1, row=3, sticky=E+W, padx=8, pady=8)
+        elif title == "Tyvärr..":
+            ok = self.buttonMaker(self.popup, "Avsluta")
+            ok.configure(command=self.exitGame)
+            ok.grid(row=3, column=1, sticky=N+S+E+W, padx=4, pady=4)
+            restart = self.buttonMaker(self.popup, "Spela igen")
+            restart.configure(command=lambda: self.restartGame(self.popup))
+            restart.grid(column=0, row=3, sticky=N+S+E+W, padx=4, pady=4)
+        self.popup.resizable(0,0)
+        self.popup.mainloop()
 
     def exitGame(self):
         winsound.PlaySound(None, winsound.SND_ASYNC)
@@ -175,32 +201,8 @@ class Game:
         [top_ten_pct.append(float(sorted_hs[i][0])) for i in range(10)]
         return top_ten_pct
 
-    def highScorePopup(self, shots, hits, title, info):
-        accuracy = (self.hits/self.shots)*100
-        self.popup = Toplevel()
-        self.popup.title(title)
-        self.popup.configure(background="lightgreen")
-        text = Label(
-            self.popup, text=info,
-            bg=self.bgcolor, fg="darkgreen", font=("", 12)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
-        if title == "Grattis!":
-            name = StringVar()
-            entry = Entry(self.popup, textvariable=name).grid(row=3, sticky=E+W+N+S)
-            ok = self.buttonMaker(self.popup)
-            ok.configure(command=lambda accuracy=str(accuracy)[:4]: self.highScoreEntry(accuracy, self.popup, name))
-            ok.grid(column=1, row=3, sticky=E+W)
-        elif title == "Tyvärr..":
-            ok = self.buttonMaker(self.popup, "Avsluta")
-            ok.configure(command=self.exitGame)
-            ok.grid(row=3, column=1, sticky=N+S+E+W, padx=4, pady=4)
-            restart = self.buttonMaker(self.popup, "Spela igen")
-            restart.configure(command=lambda: self.restartGame(self.popup))
-            restart.grid(column=0, row=3, sticky=N+S+E+W, padx=4, pady=4)
-        self.popup.resizable(0,0)
-        self.popup.mainloop()
-
-    def buttonMaker(self, win, info="OK", fg="darkgreen", bg="#93C993"):
-        return Button(win, text=info, fg=fg, bg=bg)
+    def buttonMaker(self, win, info="OK", fg="darkgreen", bg="#93C993", font=("terminal", 18)):
+        return Button(win, text=info, fg=fg, bg=bg, font=font)
         
 
     def highScoreEntry(self, accuracy, popup, name):
