@@ -279,4 +279,5 @@ class Ship():
 root=Tk()
 game = Game(root)
 root.mainloop()
+winsound.PlaySound(None, winsound.SND_ASYNC)
 ############
