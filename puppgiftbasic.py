@@ -11,6 +11,7 @@ class Game:
         self.toggle_cheat = False
         self.cheater = False
         self.placed_ships = []
+        self.bgcolor = "#689E68"
         self.terminal_font = ("terminal", 18, "bold")
         root.title("Sänka Skepp")
         self.box_list = self.createGrid()
@@ -23,20 +24,20 @@ class Game:
         Grid.rowconfigure(root, 0, weight=1)
         Grid.columnconfigure(root, 0, weight=1)
         columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]        
-        Label(text="", bg="#95E895").grid(column=0, row=0, sticky=N+S+E+W)
-        [Label(text=columns[c], fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(column=c+1, row=0, sticky=N+S+E+W) for c in range(10)]
-        [Label(text=r, fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(column=0, row=r, sticky=N+S+E+W) for r in range(1,11)]
+        Label(text="", bg=self.bgcolor).grid(column=0, row=0, sticky=N+S+E+W)
+        [Label(text=columns[c], fg="darkgreen", bg=self.bgcolor, font=self.terminal_font).grid(column=c+1, row=0, sticky=N+S+E+W) for c in range(10)]
+        [Label(text=r, fg="darkgreen", bg=self.bgcolor, font=self.terminal_font).grid(column=0, row=r, sticky=N+S+E+W) for r in range(1,11)]
         box_list = []
         for i in range(1,11):
             row = []
             for j in range(1,11):
                 coords = (i,j)
-                row.append(Box(coords, root, "lightblue"))
+                row.append(Box(coords, root, "#1789C2"))
             box_list.append(row)
-        self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(row=11 ,columnspan=11, sticky=E+W+S+N)
-        Label(text="Pricksäkerhet:", fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=0, columnspan=5, sticky=E+W+S+N)
-        Label(text="Antal skott:", fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=5, columnspan=6, sticky=E+W+S+N)
-        cheatbutton = self.buttonMaker(root, "fuska lite...", fg="#95E895", bg="#95E895")
+        self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg=self.bgcolor, font=self.terminal_font).grid(row=11 ,columnspan=11, sticky=E+W+S+N)
+        Label(text="Pricksäkerhet:", fg="darkgreen", bg=self.bgcolor, font=("terminal",18)).grid(row=12, column=0, columnspan=5, sticky=E+W+S+N)
+        Label(text="Antal skott:", fg="darkgreen", bg=self.bgcolor, font=("terminal",18)).grid(row=12, column=5, columnspan=6, sticky=E+W+S+N)
+        cheatbutton = self.buttonMaker(root, "fuska lite...", fg=self.bgcolor, bg=self.bgcolor)
         cheatbutton.configure(relief=FLAT, width="7", height="1", command=self.cheat)
         cheatbutton.grid(column=9, columnspan=2, row=11, sticky=E+W)
         root.resizable(0,0)
@@ -124,7 +125,7 @@ class Game:
     def hitNSunk(self): # om man vill ha popup för varje träff sänk? För tillfället avaktiverad.
         self.popup = Toplevel()
         self.popup.title("Träff & sänk!")
-        self.popup.configure(background="#95E895")
+        self.popup.configure(background=self.bgcolor)
         text = Label(
             self.popup, text="Du sänkte skeppet!",
             bg="lightgreen", fg="darkgreen", font=("", 12)).grid(columnspan=2, sticky=N+S+E+W, ipadx=10, ipady=10)
@@ -139,9 +140,9 @@ class Game:
             accuracy = (self.hits/self.shots)*100
         except ZeroDivisionError:
             accuracy = 1
-        Label(text=shot, fg="darkgreen", bg="#95E895", font=self.terminal_font).grid(row=11, column=2, columnspan=7, sticky=E+W+S+N)
-        Label(text=str(accuracy)[:4]+"%", fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=4, sticky=W+N+S)
-        Label(text=str(self.shots), fg="darkgreen", bg="#95E895", font=("terminal",18)).grid(row=12, column=9, sticky=W+N+S)
+        Label(text=shot, fg="darkgreen", bg=self.bgcolor, font=self.terminal_font).grid(row=11, column=2, columnspan=7, sticky=E+W+S+N)
+        Label(text=str(accuracy)[:4]+"%", fg="darkgreen", bg=self.bgcolor, font=("terminal",18)).grid(row=12, column=4, sticky=W+N+S)
+        Label(text=str(self.shots), fg="darkgreen", bg=self.bgcolor, font=("terminal",18)).grid(row=12, column=9, sticky=W+N+S)
             
     def endGameCheck(self):
         top_ten_pct = self.getTopTen(self.readFile())
@@ -181,7 +182,7 @@ class Game:
         self.popup.configure(background="lightgreen")
         text = Label(
             self.popup, text=info,
-            bg="lightgreen", fg="darkgreen", font=("", 12)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
+            bg=self.bgcolor, fg="darkgreen", font=("", 12)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
         if title == "Grattis!":
             name = StringVar()
             entry = Entry(self.popup, textvariable=name).grid(row=3, sticky=E+W+N+S)
@@ -198,7 +199,7 @@ class Game:
         self.popup.resizable(0,0)
         self.popup.mainloop()
 
-    def buttonMaker(self, win, info="OK", fg="darkgreen", bg="#81C981"):
+    def buttonMaker(self, win, info="OK", fg="darkgreen", bg="#93C993"):
         return Button(win, text=info, fg=fg, bg=bg)
         
 
@@ -222,12 +223,12 @@ class Game:
     def listHighScores(self, sorted_hs):
         high_scores = Toplevel()
         high_scores.title("High-score")
-        high_scores.configure(background="lightgreen")
+        high_scores.configure(background=self.bgcolor)
         Label(high_scores, text="Topp tio", font=("Verdana", 16, "bold"), fg="darkgreen",
-              bg="#81C981").grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
+              bg="#93C993").grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
         for i in range(10):
             Label(high_scores, text=str(i+1)+". "+str(float(sorted_hs[i][0]))+"% | "+str(sorted_hs[i][1]), 
-                bg="#95E895", fg="darkgreen", font=("", 10, "bold")).grid(sticky=N+S+W, ipadx=20, columnspan=2)
+                bg=self.bgcolor, fg="darkgreen", font=("", 10, "bold")).grid(sticky=N+S+W, ipadx=20, columnspan=2)
         ok = self.buttonMaker(high_scores, "Avsluta")
         ok.configure(command=self.exitGame)
         ok.grid(row=12, column=1, sticky=N+S+E+W, padx=4, pady=4)
@@ -239,12 +240,12 @@ class Game:
         if self.toggle_cheat == True: # Om fusket är påslaget
             for obj in self.placed_ships:
                 if obj.status == 1:
-                    obj.changeColor("lightblue") # Dölj skeppen
+                    obj.changeColor("#1789C2") # Dölj skeppen
             self.toggle_cheat = False # Om fusket är avslaget
         else:
             for obj in self.placed_ships:
                 if obj.status == 1:
-                    obj.changeColor("grey") # Visa skeppen
+                    obj.changeColor("#8C8C8C") # Visa skeppen
             self.cheater, self.toggle_cheat = True, True
 
 class Box(Game):
