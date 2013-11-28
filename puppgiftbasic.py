@@ -53,11 +53,10 @@ class Game:
             if direction == "h":
                 for n in range(ship):
                     self.placeShip(n, 0, x, y)
-                self.ship_list.append(Ship(ship, (x ,y), direction))
             elif direction == "v":
                 for n in range(ship):
                     self.placeShip(0, n, x, y)
-                self.ship_list.append(Ship(ship, (x, y), direction))
+            self.ship_list.append(Ship(ship, (x, y), direction))
             self.order += 1
             
     def controlPlacement(self, ship):
@@ -307,6 +306,7 @@ class Ship():
         self.adjacent = []
         for i in range(self.length): # Lägg till alla rutor runt omkring skeppet i self.adjacent
             pass
+            
             
         
 
