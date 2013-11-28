@@ -14,6 +14,7 @@ class Game:
         self.bgcolor = "#689E68"
         self.terminal_font = ("terminal", 18, "bold")
         root.title("Sänka Skepp")
+        root.geometry("+300+0")
         self.box_list = self.createGrid()
         self.randomizeShipPlacement()
         
@@ -58,7 +59,6 @@ class Game:
                     self.placeShip(0, n, x, y)
                 self.ship_list.append(Ship(ship, (x, y), direction))
             self.order += 1
-        
             
     def controlPlacement(self, ship):
         control = False
@@ -68,31 +68,52 @@ class Game:
             y = start.coords[1]-1
             direction = random.choice(["h", "v"])
             try:
-                for i in range(ship):
-                    if direction == "h":
+                if direction == "h":
+                    self.box_list[x+(ship-1)][y] # Kontrollera om skeppet slutar innanför spelplanen
+                    for i in range(ship):
                         control = self.controlBorders(i, 0, x, y)
-                    elif direction == "v":
+                        if control == False:
+                            break
+                elif direction == "v":
+                    self.box_list[x][y+(ship-1)] # Kontrollera om skeppet slutar innanför spelplanen
+                    for i in range(ship):
                         control = self.controlBorders(0, i, x, y)
-                    if control == False:
-                        break
+                        if control == False:
+                            break
             except IndexError: # Om skeppet skulle hamna utanför spelplanen
                 return False, direction, x, y
             return control, direction, x, y
 
     def controlBorders(self, i, j, x, y):
-        if x-1+i<0 or y-1+j<0 or x+1+i<0 or y+1+j<0:
-            pass #????
-        if (
-            self.box_list[x+i][y+j].status != 0 # kolla överlapp
-            or self.box_list[x-1+i][y+j].status != 0 # vänster
-            or self.box_list[x+i][y-1+j].status != 0 # ovanför
-            or self.box_list[x+1+i][y+j].status != 0 # höger       
-            or self.box_list[x+i][y+1+j].status != 0 # under
-            ):
+        tests = [(x-1+i, y+j),(x+1+i, y+j),(x+i, y-1+j),(x+i, y+1+j),(x+i, y+j)]
+        for n in tests:
+            corrected = self.controlPastGridEdge(n)
+            tests[tests.index(n)] = (corrected[0], corrected[1])
+        try:
+            if (
+                self.box_list[tests[4][0]][tests[4][1]].status != 0 # kolla överlapp
+                or self.box_list[tests[0][0]][tests[0][1]].status != 0 # vänster
+                or self.box_list[tests[1][0]][tests[1][1]].status != 0 # höger
+                or self.box_list[tests[2][0]][tests[2][1]].status != 0 # över
+                or self.box_list[tests[3][0]][tests[3][1]].status != 0 # under
+                ):
+                control = False
+            else:                                   
+                control = True
+        except IndexError:
             control = False
-        else:                                   
-            control = True
         return control
+
+    def controlPastGridEdge(self, n):
+        corrected = []
+        for coord in n:
+            if coord>9:
+                corrected.append(9)
+            elif coord<0:
+                corrected.append(0)
+            else:
+                corrected.append(coord)
+        return corrected
 
     def placeShip(self, i, j, x, y):
         self.box_list[x+i][y+j].status = 1
@@ -124,18 +145,24 @@ class Game:
         else:
             pass
 
-    def hitNSunk(self): # om man vill ha popup för varje träff sänk? För tillfället avaktiverad.
+    def hitNSunk(self, box, coords):
+        """Tänkt att metoden ska färga det sänka skeppet samt "skjuta" på alla rutor runt skeppet
+        då det inte kan vara något annat skepp där."""
+        for i in range(box):
+            pass
+        
+    def hitNSunk2(self): # om man vill ha popup för varje träff sänk? För tillfället avaktiverad.
         self.popup = Toplevel()
         self.popup.title("Träff & sänk!")
         self.popup.configure(background=self.bgcolor)
+        self.popup.geometry("+520+250")
         text = Label(
             self.popup, text="Du sänkte skeppet!",
-            bg="lightgreen", fg="darkgreen", font=("", 12)).grid(columnspan=2, sticky=N+S+E+W, ipadx=10, ipady=10)
+            bg=self.bgcolor, fg="darkgreen", font=("terminal", 18)).grid(columnspan=2, sticky=N+S+E+W, ipadx=10, ipady=10)
         ok = self.buttonMaker(self.popup)
         ok.configure(command=self.popup.destroy)
         ok.grid(columnspan=2, row=3, sticky=N+S+E+W, padx=10, pady=10)
         self.popup.resizable(0,0)
-        self.popup.mainloop()
             
     def updateStats(self, shots, hits, shot):
         try:
@@ -159,6 +186,7 @@ class Game:
         self.popup = Toplevel()
         self.popup.title(title)
         self.popup.configure(background=self.bgcolor)
+        self.popup.geometry("+310+250")
         text = Label(
             self.popup, text=info,
             bg=self.bgcolor, fg="darkgreen", font=("terminal", 18)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
@@ -226,11 +254,12 @@ class Game:
         high_scores = Toplevel()
         high_scores.title("High-score")
         high_scores.configure(background=self.bgcolor)
-        Label(high_scores, text="Topp tio", font=("Verdana", 16, "bold"), fg="darkgreen",
+        high_scores.geometry("+345+110")
+        Label(high_scores, text="Topp tio", font=self.terminal_font, fg="darkgreen",
               bg="#93C993").grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
         for i in range(10):
             Label(high_scores, text=str(i+1)+". "+str(float(sorted_hs[i][0]))+"% | "+str(sorted_hs[i][1]), 
-                bg=self.bgcolor, fg="darkgreen", font=("", 10, "bold")).grid(sticky=N+S+W, ipadx=20, columnspan=2)
+                bg=self.bgcolor, fg="darkgreen", font=("terminal", 12)).grid(sticky=N+S+W, ipadx=20, ipady=5, columnspan=2)
         ok = self.buttonMaker(high_scores, "Avsluta")
         ok.configure(command=self.exitGame)
         ok.grid(row=12, column=1, sticky=N+S+E+W, padx=4, pady=4)
@@ -273,8 +302,13 @@ class Ship():
     def __init__(self, ship, coords, direction):
         self.length = ship
         self.direction = direction
-        self.hits = 0
         self.coords = coords
+        self.hits = 0
+        self.adjacent = []
+        for i in range(self.length): # Lägg till alla rutor runt omkring skeppet i self.adjacent
+            pass
+            
+        
 
 
 ### Main ###
