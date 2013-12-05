@@ -56,29 +56,27 @@ class Game:
             elif direction == "v":
                 for n in range(ship):
                     self.placeShip(0, n, x, y)
-            self.ship_list.append(Ship(ship, (x, y), direction))
+            self.ship_list.append(Ship(ship, (x, y), direction, self.box_list))
             self.order += 1
             
     def controlPlacement(self, ship):
         control = False
         while control == False:
             start = random.choice(self.box_list[random.randint(0,9)])
-            x = start.coords[0]-1
-            y = start.coords[1]-1
+            x = start.coords[0]-1 # Index i box_list
+            y = start.coords[1]-1 # Index i box_list
             direction = random.choice(["h", "v"])
             try:
-                if direction == "h":
-                    self.box_list[x+(ship-1)][y] # Kontrollera om skeppet slutar innanför spelplanen
-                    for i in range(ship):
-                        control = self.controlBorders(i, 0, x, y)
-                        if control == False:
-                            break
-                elif direction == "v":
-                    self.box_list[x][y+(ship-1)] # Kontrollera om skeppet slutar innanför spelplanen
-                    for i in range(ship):
-                        control = self.controlBorders(0, i, x, y)
-                        if control == False:
-                            break
+                for i in range(ship):
+                    if direction == "h":
+                        self.box_list[x+(ship-1)][y]
+                        k, j = i, 0
+                    elif direction == "v":
+                        self.box_list[x][y+(ship-1)]
+                        k, j = 0, i
+                    control = self.controlBorders(i, j, x, y)
+                    if control == False:
+                        break
             except IndexError: # Om skeppet skulle hamna utanför spelplanen
                 return False, direction, x, y
             return control, direction, x, y
@@ -147,8 +145,10 @@ class Game:
     def hitNSunk(self, box, coords):
         """Tänkt att metoden ska färga det sänka skeppet samt "skjuta" på alla rutor runt skeppet
         då det inte kan vara något annat skepp där."""
-        for i in range(box):
-            pass
+        for tile in self.box_list:
+            if tile.coords == coords:
+                pass
+
         
     def hitNSunk2(self): # om man vill ha popup för varje träff sänk? För tillfället avaktiverad.
         self.popup = Toplevel()
@@ -297,23 +297,40 @@ class Box(Game):
     def changeColor(self, color):
         self.button.configure(bg=color)
 
-class Ship():
-    def __init__(self, ship, coords, direction):
+class Ship(Game):
+    def __init__(self, ship, coords, direction, box_list):
         self.length = ship
         self.direction = direction
         self.coords = coords
+        self.all_coords = []
         self.hits = 0
+        self.includes = []
         self.adjacent = []
-        for i in range(self.length): # Lägg till alla rutor runt omkring skeppet i self.adjacent
-            pass
-            
-            
-        
+        self.getAdjacent(box_list)
 
+    def getAdjacent(self, box_list): # Lägg till alla rutor runt omkring skeppet i self.adjacent
+        if self.direction == "h":
+            c = 1
+            d = 0
+        elif self.direction == "v":
+            c = 0
+            d = 1
+        for l in range(self.length):
+            tests = [(self.coords[0]-1+l*c, self.coords[1]+l*d),(self.coords[0]+1+l*c, self.coords[1]+l*d),(self.coords[0]+l*c, self.coords[1]-1+l*d),(self.coords[0]+l*c, self.coords[1]+1+l*d),(self.coords[0]+l*c, self.coords[1]+l*d)]
+            for n in tests:
+                corrected = Game.controlPastGridEdge(self, n)
+                tests[tests.index(n)] = (corrected[0], corrected[1])
+            try:
+                for k in range(4):
+                    self.adjacent.append(box_list[tests[k][0]][tests[k][1]]) # Lägg till rutorna runt omkring
+            except IndexError:
+                pass
+        for adj in self.adjacent:
+            adj.changeColor('green')
 
 ### Main ###
 root=Tk()
 game = Game(root)
 root.mainloop()
-winsound.PlaySound(None, winsound.SND_ASYNC)
+winsound.PlaySound(None, winsound.SND_ASYNC) # Sluta spela musik om rutan stängs
 ############
