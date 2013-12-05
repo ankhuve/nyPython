@@ -16,10 +16,8 @@ class Game:
         root.title("Sänka Skepp")
         root.geometry("+300+0")
         self.box_list = self.createGrid()
-        self.randomizeShipPlacement()
-        
+        self.randomizeShipPlacement()        
         winsound.PlaySound("ship n stuff.wav", winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP)
-        
 
     def createGrid(self):
         Grid.rowconfigure(root, 0, weight=1)
@@ -32,7 +30,7 @@ class Game:
         for i in range(1,11):
             row = []
             for j in range(1,11):
-                coords = (i,j)
+                coords = (i,j) # På spelfältet, 1-10
                 row.append(Box(coords, root, "#1789C2"))
             box_list.append(row)
         self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg=self.bgcolor, font=self.terminal_font).grid(row=11 ,columnspan=11, sticky=E+W+S+N)
@@ -46,20 +44,20 @@ class Game:
             
     def randomizeShipPlacement(self):
         self.order = 0
-        for ship in self.SHIPS:
+        for length in self.SHIPS:
             placement_check = False
             while placement_check != True:
-                placement_check, direction, x, y = self.controlPlacement(ship)
+                placement_check, direction, x, y = self.controlPlacement(length)
             if direction == "h":
-                for n in range(ship):
+                for n in range(length):
                     self.placeShip(n, 0, x, y)
             elif direction == "v":
-                for n in range(ship):
+                for n in range(length):
                     self.placeShip(0, n, x, y)
-            self.ship_list.append(Ship(ship, (x, y), direction, self.box_list))
+            self.ship_list.append(Ship(length, (x, y), direction, self.box_list))
             self.order += 1
             
-    def controlPlacement(self, ship):
+    def controlPlacement(self, length):
         control = False
         while control == False:
             start = random.choice(self.box_list[random.randint(0,9)])
@@ -67,16 +65,18 @@ class Game:
             y = start.coords[1]-1 # Index i box_list
             direction = random.choice(["h", "v"])
             try:
-                for i in range(ship):
-                    if direction == "h":
-                        self.box_list[x+(ship-1)][y]
-                        k, j = i, 0
-                    elif direction == "v":
-                        self.box_list[x][y+(ship-1)]
-                        k, j = 0, i
-                    control = self.controlBorders(i, j, x, y)
-                    if control == False:
-                        break
+                if direction == "h":
+                    self.box_list[x+(length-1)][y] # Kontrollera om skeppet slutar innanför spelplanen
+                    for i in range(length):
+                        control = self.controlBorders(i, 0, x, y)
+                        if control == False:
+                            break
+                elif direction == "v":
+                    self.box_list[x][y+(length-1)] # Kontrollera om skeppet slutar innanför spelplanen
+                    for i in range(length):
+                        control = self.controlBorders(0, i, x, y)
+                        if control == False:
+                            break
             except IndexError: # Om skeppet skulle hamna utanför spelplanen
                 return False, direction, x, y
             return control, direction, x, y
@@ -87,16 +87,12 @@ class Game:
             corrected = self.controlPastGridEdge(n)
             tests[tests.index(n)] = (corrected[0], corrected[1])
         try:
-            if (
-                self.box_list[tests[4][0]][tests[4][1]].status != 0 # kolla överlapp
-                or self.box_list[tests[0][0]][tests[0][1]].status != 0 # vänster
-                or self.box_list[tests[1][0]][tests[1][1]].status != 0 # höger
-                or self.box_list[tests[2][0]][tests[2][1]].status != 0 # över
-                or self.box_list[tests[3][0]][tests[3][1]].status != 0 # under
-                ):
-                control = False
-            else:                                   
-                control = True
+            for k in range(5):
+                if self.box_list[tests[k][0]][tests[k][1]].status != 0:
+                    control = False
+                    break
+                else:
+                    control = True
         except IndexError:
             control = False
         return control
@@ -127,12 +123,11 @@ class Game:
             box.changeColor("red")
             self.hits += 1
             self.updateStats(self.shots, self.hits, shot)
-            if self.hits==(17):
+            if self.hits==(sum(self.SHIPS)):
+                self.hitNSunk(box)
                 self.endGameCheck()
             elif self.ship_list[box.order].hits == self.ship_list[box.order].length:
-                #self.hitNSunk()
-                shot = "Träff och sänk!"
-                self.updateStats(self.shots, self.hits, shot)
+                self.hitNSunk(box)
         elif box.status == 0:
             shot = "Bom.."
             self.shots += 1
@@ -142,13 +137,19 @@ class Game:
         else:
             pass
 
-    def hitNSunk(self, box, coords):
-        """Tänkt att metoden ska färga det sänka skeppet samt "skjuta" på alla rutor runt skeppet
+    def hitNSunk(self, box):
+        """Färga det sänka skeppet samt "skjuta" på alla rutor runt skeppet
         då det inte kan vara något annat skepp där."""
-        for tile in self.box_list:
-            if tile.coords == coords:
-                pass
-
+        for ship in self.ship_list:
+            if box in ship.includes:
+                for adjacent in ship.adjacent:
+                    adjacent.changeColor("white")
+                    adjacent.status = 2
+                for ship_part in ship.includes:
+                    ship_part.changeColor("#8A5353")
+                break
+        shot = "Träff och sänk!"
+        self.updateStats(self.shots, self.hits, shot)
         
     def hitNSunk2(self): # om man vill ha popup för varje träff sänk? För tillfället avaktiverad.
         self.popup = Toplevel()
@@ -298,8 +299,8 @@ class Box(Game):
         self.button.configure(bg=color)
 
 class Ship(Game):
-    def __init__(self, ship, coords, direction, box_list):
-        self.length = ship
+    def __init__(self, length, coords, direction, box_list):
+        self.length = length
         self.direction = direction
         self.coords = coords
         self.all_coords = []
@@ -310,23 +311,33 @@ class Ship(Game):
 
     def getAdjacent(self, box_list): # Lägg till alla rutor runt omkring skeppet i self.adjacent
         if self.direction == "h":
-            c = 1
-            d = 0
+            c, d = 1, 0
         elif self.direction == "v":
-            c = 0
-            d = 1
+            c, d = 0, 1
         for l in range(self.length):
-            tests = [(self.coords[0]-1+l*c, self.coords[1]+l*d),(self.coords[0]+1+l*c, self.coords[1]+l*d),(self.coords[0]+l*c, self.coords[1]-1+l*d),(self.coords[0]+l*c, self.coords[1]+1+l*d),(self.coords[0]+l*c, self.coords[1]+l*d)]
+            self.includes.append(box_list[self.coords[0]+l*c][self.coords[1]+l*d])
+            tests = [(self.coords[0]-1+l*c, self.coords[1]+l*d),(self.coords[0]+1+l*c, self.coords[1]+l*d),(self.coords[0]+l*c, self.coords[1]-1+l*d),(self.coords[0]+l*c, self.coords[1]+1+l*d)]
             for n in tests:
                 corrected = Game.controlPastGridEdge(self, n)
                 tests[tests.index(n)] = (corrected[0], corrected[1])
             try:
                 for k in range(4):
-                    self.adjacent.append(box_list[tests[k][0]][tests[k][1]]) # Lägg till rutorna runt omkring
+                    if not box_list[tests[k][0]][tests[k][1]] in self.includes:
+                        self.adjacent.append(box_list[tests[k][0]][tests[k][1]])
             except IndexError:
                 pass
-        for adj in self.adjacent:
-            adj.changeColor('green')
+        for tile in self.includes:
+            if tile in self.adjacent:
+                self.adjacent.remove(tile) # Plocka bort skeppets rutor från adjacent
+
+    def getInbound(self, box_list):
+        if self.direction == "h":
+            c, d = 1, 0
+        elif self.direction == "v":
+            c, d = 0, 1
+        for l in range(self.length):
+            self.includes.append()
+
 
 ### Main ###
 root=Tk()
