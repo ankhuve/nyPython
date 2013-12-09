@@ -10,7 +10,8 @@ class Game:
     def __init__(self, root):
         """ Konstruktor, bestämmer variabler och kör igång createGrid, outerPlacementControl och sätter igång spelmusiken. 
         Inparameter är rotfönstret. """
-        self.root = root
+        self.BGCOLOR = "#689E68" # Standardbakgrundsfärg för rutor.
+        self.TERMINAL_FONT = ("terminal", 18, "bold") # Standardfont för text i rutor.
         self.SHIPLENGTHS = [5,4,3,3,2] # Antal skepp och hur långa de är.
         self.ship_list = [] # Placerade skepp, fylls med objekt av klassen Ship.
         self.shots = 0 # Antal gånger spelaren skjutit.
@@ -18,8 +19,7 @@ class Game:
         self.toggle_cheat = False # Är fusk påslaget?
         self.cheater = False # Har spelaren tryckt på fuskknappen?
         self.taken_boxes = [] # Fylls med alla rutor som är upptagna av skepp, objekt av klassen Box.
-        self.BGCOLOR = "#689E68" # Standardbakgrundsfärg för rutor.
-        self.TERMINAL_FONT = ("terminal", 18, "bold") # Standardfont för text i rutor.
+        self.root = root # Rotfönstret.
         self.root.title("Sänka Skepp") # Rotfönstrets titel.
         self.root.geometry("+300+0") # Rotfönstrets placering.
         self.box_list = [] # Varje objekt av Box sparas i listor om varje rad i denna lista.
@@ -29,38 +29,43 @@ class Game:
 
     def createGrid(self):
         """ Skapar det grafiska rutnätet av knappar, koordinater och text samt skapar fuskknappen (döljs nere i det högra hörnet). """
-        Grid.rowconfigure(self.root, 0, weight=1)
-        Grid.columnconfigure(self.root, 0, weight=1)
+        self.fixGridsize()
         COLUMNS = list(string.ascii_uppercase) # Lista med alfabetet
-        Label(text="", bg=self.BGCOLOR).grid(column=0, row=0, sticky=N+S+E+W)# Skapar en lista med alfabetet
-        if self.GRIDSIZE>26:
-            self.GRIDSIZE=26 # Kontroller för att fixa till storleken av rutnätet om det angetts ett för stort eller för litet värde.
-        elif self.GRIDSIZE<10:
-            self.GRIDSIZE=10
-        [Label(text=COLUMNS[c], fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(column=c+1, row=0, sticky=N+S+E+W) for c in range(self.GRIDSIZE)] # Sätter ut bokstäver ovanför kolumnerna.
-        [Label(text=r, fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(column=0, row=r, sticky=N+S+E+W) for r in range(1,self.GRIDSIZE+1)] # Sätter ut siffror vänster om raderna.
+        Label(text="", bg=self.BGCOLOR).grid(column=0, row=0, sticky=N+S+E+W)
+        [Label(text=COLUMNS[c], fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(column=c+1, row=0, sticky=N+S+E+W) for c in range(self.GRIDSIZE)]
+        [Label(text=r, fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(column=0, row=r, sticky=N+S+E+W) for r in range(1,self.GRIDSIZE+1)]
         for i in range(1,self.GRIDSIZE+1):
             row = [] # Lista som skapas för varje rad.
             for j in range(1,self.GRIDSIZE+1):
                 coords = (i,j) # Koordinater på spelfältet, från 1 till GRIDSIZE.
                 row.append(Box(self, coords, self.root, "#1789C2"))
             self.box_list.append(row)
-        self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(row=self.GRIDSIZE+1 ,columnspan=self.GRIDSIZE+1, sticky=E+W+S+N) # Text som ger instruktioner samt uppdateras om användaren missar/träffar/sänker
+        self.info = Label(text="Klicka för att skjuta!", fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(row=self.GRIDSIZE+1 ,columnspan=self.GRIDSIZE+1, sticky=E+W+S+N)
         Label(text="Pricksäkerhet:", fg="darkgreen", bg=self.BGCOLOR, font=("terminal",18)).grid(row=self.GRIDSIZE+2, column=0, columnspan=(math.floor(self.GRIDSIZE/2)), sticky=E+W+S+N)
         Label(text="Antal skott:", fg="darkgreen", bg=self.BGCOLOR, font=("terminal",18)).grid(row=self.GRIDSIZE+2, column=(math.floor(self.GRIDSIZE/2)), columnspan=(math.ceil(self.GRIDSIZE/2)+1), sticky=E+W+S+N)
-        cheatbutton = self.buttonMaker(self.root, "fuska lite...", fg=self.BGCOLOR, bg=self.BGCOLOR, font=("terminal", 10)) # Skapar fuskknappen
-        cheatbutton.configure(relief=FLAT, width="7", height="1", command=self.cheat)
-        cheatbutton.grid(column=self.GRIDSIZE-1, columnspan=2, row=self.GRIDSIZE+1, sticky=N+S+E+W, padx=20)
+        exitbutton = self.buttonMaker(self.root, "Ge upp", font=("terminal",18))
+        exitbutton.configure(relief=GROOVE, command=self.giveUp)
+        exitbutton.grid(column=0, columnspan=2, row=self.GRIDSIZE+1, sticky=N+S, padx=5, pady=5)
+        self.cheatbutton = self.buttonMaker(self.root, "fuska lite...", fg=self.BGCOLOR, bg=self.BGCOLOR, font=("terminal", 10)) # Skapar fuskknappen
+        self.cheatbutton.configure(relief=FLAT, width="7", height="1", command=self.cheat)
+        self.cheatbutton.grid(column=self.GRIDSIZE-1, columnspan=2, row=self.GRIDSIZE+1, sticky=N+S+E+W, padx=20)
         self.root.resizable(0,0)
+
+    def fixGridsize(self):
+        """ Kontroller för att fixa till storleken av rutnätet om det angetts ett för stort eller för litet värde. """
+        if self.GRIDSIZE>26:
+            self.GRIDSIZE=26 
+        elif self.GRIDSIZE<10:
+            self.GRIDSIZE=10
             
     def outerPlacementControl(self):
         """ Kollar om placering av skepp är OK och lägger till skeppen i self.ship_list om så är fallet. """
         self.order = 0 # Håller reda på vilket skepp som försöker slumpas fram.
         for length in self.SHIPLENGTHS:
-            placement_check = False # Är placeringen godkänd?
+            placement_check = False 
             while placement_check != True:
-                placement_check, direction, x, y = self.randomizeAndControl(length) # Kör metoden randomizeAndControl, returnerar om placeringen var godkänd, vilken riktning skeppet har samt dess startkoorinater.
-            if direction == "h": # Om horisontell.
+                placement_check, direction, x, y = self.randomizeAndControl(length)
+            if direction == "h":
                 for n in range(length):
                     self.placeShip(n, 0, x, y)
             elif direction == "v":
@@ -81,18 +86,18 @@ class Game:
             direction = random.choice(["h", "v"])
             try:
                 if direction == "h":
-                    self.box_list[x+(length-1)][y] # Kontrollera om skeppet slutar innanför spelplanen.
+                    self.box_list[x+(length-1)][y] # Kontrollera om skeppet slutar utanför spelplanen.
                     for i in range(length):
                         control = self.controlBorders(i, 0, x, y)
                         if control == False:
                             break
                 elif direction == "v":
-                    self.box_list[x][y+(length-1)] # Kontrollera om skeppet slutar innanför spelplanen.
+                    self.box_list[x][y+(length-1)]
                     for i in range(length):
                         control = self.controlBorders(0, i, x, y)
                         if control == False:
                             break
-            except IndexError: # Om skeppet skulle hamna utanför spelplanen.
+            except IndexError:
                 return False, direction, x, y
             return control, direction, x, y
 
@@ -105,11 +110,11 @@ class Game:
         Returnerar True om det inte överlappar något skepp eller ligger bredvid ett annat, False annars."""
         tests = [(x-1+i, y+j),(x+1+i, y+j),(x+i, y-1+j),(x+i, y+1+j),(x+i, y+j)] # Varje kontroll som ska göras, ovanför, under, till höger och till vänster om den rutan i skeppet som kontrolleras.
         for n in tests:
-            corrected = self.controlPastGridEdge(n) # Fixar till kontrollerna om det behövs (om den skulle försöka kontrollera utanför spelplanen eller så). Lista med fixade koordinater sparas i corrected.
-            tests[tests.index(n)] = (corrected[0], corrected[1]) # Värdena förs över till tests som tuple.
+            corrected = self.controlPastGridEdge(n) # Fixar till kontrollerna om det behövs (om den skulle försöka kontrollera utanför spelplanen eller så).
+            tests[tests.index(n)] = (corrected[0], corrected[1])
         try:
             for k in range(5):
-                if self.box_list[tests[k][0]][tests[k][1]].status != 0: # Om status inte är noll betyder det att rutan är upptagen, sätter då control till False.
+                if self.box_list[tests[k][0]][tests[k][1]].status != 0:
                     control = False
                     break
                 else:
@@ -123,13 +128,13 @@ class Game:
         Inparameter är koordinaterna som ska kollas.
         Returnerar lista med fixade koordinater. """
         corrected = []
-        for coord in n:
-            if coord>(self.GRIDSIZE-1):
+        for k in n:
+            if k>(self.GRIDSIZE-1):
                 corrected.append(self.GRIDSIZE-1)
-            elif coord<0:
+            elif k<0:
                 corrected.append(0)
             else:
-                corrected.append(coord)
+                corrected.append(k)
         return corrected
 
     def placeShip(self, i, j, x, y):
@@ -144,7 +149,7 @@ class Game:
         """ Metod som körs när användaren klicka på en ruta. Kontrollerar om det är en träff/miss/träff&sänk. Färgar rutan enligt träff=röd, miss=vit. Kontrollerar om användaren har sänkt alla skepp och kör då endGameCheck. Uppdaterar text om pricksäkerhet och antal skott samt infotext som talar om för användaren vad som hänt. Gör ingenting om rutan redan är skjuten på.
         Inparameter är koordinater (på spelplanen) för den klickade rutan."""
         box = self.box_list[coords[0]-1][coords[1]-1] # Gör om koordinaterna så att de motsvarar korrekt index i box_list.
-        if box.status == 1: # Om rutan innehåller ett skepp.
+        if box.status == 1:
             shot_status = "Träff!"
             self.shots += 1
             self.ship_list[box.order].hits += 1
@@ -157,21 +162,21 @@ class Game:
                 self.endGameCheck()
             elif self.ship_list[box.order].hits == self.ship_list[box.order].length:
                 self.hitNSunk(box)
-        elif box.status == 0: # Om rutan inte innehåller ett skepp.
+        elif box.status == 0:
             shot_status = "Bom.."
             self.shots += 1
             box.status = 2
             box.changeColor("white")
             self.updateStats(self.shots, self.hits, shot_status)
-        else: # Om rutan redan är skjuten på.
+        else:
             pass
 
     def hitNSunk(self, box):
-        """Färga det sänka skeppet samt "skjuta" på alla rutor runt skeppet
+        """ Färga det sänka skeppet samt "skjuta" på alla rutor runt skeppet
         då det inte kan vara något annat skepp där.
-        Inparameter är rutan man klickade på senast (objekt av Box)"""
+        Inparameter är rutan man klickade på senast """
         for ship in self.ship_list:
-            if box in ship.includes: # Leta igenom ship_list efter skeppet som innehåller rutan som sänkte skeppet.
+            if box in ship.includes:
                 for adjacent in ship.adjacent:
                     adjacent.changeColor("white")
                     adjacent.status = 2
@@ -182,7 +187,7 @@ class Game:
         self.updateStats(self.shots, self.hits, shot_status)
         
     def hitNSunk2(self):
-        """Om man vill ha popup för varje träff sänk? För tillfället avaktiverad."""
+        """ Om man vill ha popup för varje träff sänk? För tillfället avaktiverad. """
         self.popup = Toplevel()
         self.popup.title("Träff & sänk!")
         self.popup.configure(background=self.BGCOLOR)
@@ -197,27 +202,31 @@ class Game:
             
     def updateStats(self, shots, hits, shot_status):
         """ Uppdaterar texten i rotfönstret med info om träff/miss/sänk, samt antal skott och pricksäkerhet.
-        Inparametrar är antal skott, antal träffar och vad det senaste skottet var (miss/träff/sänk)."""
+        Inparametrar är antal skott, antal träffar och vad det senaste skottet var (miss/träff/sänk). """
         try:
             accuracy = (self.hits/self.shots)*100
-        except ZeroDivisionError: # Om första skottet är en träff.
+        except ZeroDivisionError:
             accuracy = 1
         Label(text=shot_status, fg="darkgreen", bg=self.BGCOLOR, font=self.TERMINAL_FONT).grid(row=self.GRIDSIZE+1, column=math.ceil(self.GRIDSIZE/7), columnspan=math.floor(self.GRIDSIZE*0.75), sticky=E+W+S+N)
         Label(text=str(accuracy)[:4]+"%", fg="darkgreen", bg=self.BGCOLOR, font=("terminal",18)).grid(row=self.GRIDSIZE+2, column=math.ceil(self.GRIDSIZE/3), sticky=W+N+S)
         Label(text=str(self.shots), fg="darkgreen", bg=self.BGCOLOR, font=("terminal",18)).grid(row=self.GRIDSIZE+2, column=self.GRIDSIZE-1, sticky=W+N+S)
             
     def endGameCheck(self):
-        """ Hämtar först de tio bästa resultatet från textfilen och kontrollerar sedan om resultatet platsar på high-score-listan. """
+        """ Hämtar de tio bästa resultatet från textfilen och kontrollerar om resultatet platsar på high-score-listan. Gör också så att knapparna inte går att klicka på när spelet är slut. """
         top_ten_pct = self.getTopTen(self.readFile())
+        for i in self.box_list:
+            for j in i:
+                j.status = 2 # Gör knapparna oklickbara.
         try:
             if (self.hits/self.shots)*100 > top_ten_pct[-1] or len(top_ten_pct)<10:
                 self.highScorePopup(self.shots, self.hits, "Grattis!",
                                     "Grattis, du lyckades ta dig in på high-score-listan!\nVar god ange ditt namn i rutan nedanför.")
             else:
                 self.highScorePopup(self.shots, self.hits, "Tyvärr..", "Du lyckades tyvärr inte ta dig in på high-score-listan..")
-        except IndexError: # Om high-score-listan är tom.
+        except IndexError:
             self.highScorePopup(self.shots, self.hits, "Grattis!",
                                     "Grattis, du lyckades ta dig in på high-score-listan!\nVar god ange ditt namn i rutan nedanför.")
+
     def highScorePopup(self, shots, hits, title, info):
         """ Skapar en popup som antingen berättar att man kvalificerats till high-score-listan, eller att man inte gjorde det.
         Inparametrar är antal skott, antal träffar, titel på det nya fönstret och vad som ska stå i texten i fönstret. """
@@ -228,7 +237,7 @@ class Game:
         self.popup.geometry("+310+250")
         text = Label(
             self.popup, text=info,
-            bg=self.BGCOLOR, fg="darkgreen", font=("terminal", 18)).grid(columnspan=2, sticky=N+S+E+W, ipadx=20, ipady=20)
+            bg=self.BGCOLOR, fg="darkgreen", font=("terminal", 18)).grid(columnspan=3, sticky=N+S+E+W, ipadx=20, ipady=20)
         if title == "Grattis!":
             name = StringVar() # Skapa strängvariabel för namnet.
             entry = Entry(self.popup, font=("terminal", 18), textvariable=name).grid(row=3, sticky=E+W+N+S, padx=8, pady=8)
@@ -247,6 +256,29 @@ class Game:
             list_hs.grid(column=2, row=3, sticky=N+S+E+W, padx=4, pady=4)
         self.popup.resizable(0,0)
         self.popup.mainloop()
+
+    def giveUp(self):
+        """ Popup som visas när användaren trycker på "Ge upp"-knappen. Ger tre alternativ, spela igen, avsluta, och visa skeppen. 
+        Omgången avslutas (utan high-score) så fort denna metod kallas och man kan då inte klicka på rutorna. """
+        give_up = Toplevel()
+        give_up.title("GG WP")
+        give_up.configure(background=self.BGCOLOR)
+        give_up.geometry("+250+300")
+        Label(give_up, text="Spelet är nu avslutat. \nVill du se var skeppen var placerade kan du trycka på knappen nedan. \nTack för att du spelade!",
+            bg=self.BGCOLOR, fg="darkgreen", font=("terminal", 18)).grid(row=0, column=0, columnspan=3, ipadx=20, ipady=20)
+        exit = self.buttonMaker(give_up, "Avsluta")
+        exit.configure(command=self.exitGame)
+        exit.grid(row=1, column=1, sticky=N+S+E+W, padx=4, pady=4)
+        restart = self.buttonMaker(give_up, "Spela igen")
+        restart.configure(command=lambda: self.restartGame(give_up))
+        restart.grid(column=0, row=1, sticky=N+S+E+W, padx=4, pady=4)
+        cheat = self.buttonMaker(give_up, "Titta på skeppen")
+        cheat.configure(command=self.cheat)
+        cheat.grid(column=2, row=1, sticky=N+S+E+W, padx=4, pady=4)
+        give_up.resizable(0,0)
+        for i in self.box_list:
+            for j in i:
+                j.status = 2
 
     def exitGame(self):
         """ Stoppar musiken och stänger spelet. """
@@ -300,9 +332,9 @@ class Game:
             entry = entry.split(" | ")
             hs_list.append((entry[0],entry[1]))
         if self.cheater == False:
-            hs_list.append((accuracy, name.get())) # name.get() hämtar namnet man skrev in i textfältet.
+            hs_list.append((accuracy, name.get()))
         else:
-            hs_list.append((accuracy, str(name.get())+" (med fusk!)")) # Lägg till "(med fusk!)" om man har fuskat.
+            hs_list.append((accuracy, str(name.get())+" (med fusk!)"))
         sorted_hs = sorted(hs_list, key=lambda a: float(a[0]), reverse=True)
         updated_hs = open("highscores.txt", "w+")
         [updated_hs.write(str(float(i[0]))+" | "+i[1]+"\n") for i in sorted_hs]
@@ -330,17 +362,18 @@ class Game:
         restart = self.buttonMaker(high_scores, "Spela igen")
         restart.configure(command=lambda: self.restartGame(high_scores))
         restart.grid(column=0, row=12, sticky=N+S+E+W, padx=4, pady=4)
+        high_scores.resizable(0,0)
 
     def cheat(self):
         """ Fuskfunktionen, visar skeppen om de är dolda, döljer skeppen om de visas. Sätter self.cheater till True om man slagit på fusket någon gång. """
-        if self.toggle_cheat == True: # Om fusket är påslaget
+        if self.toggle_cheat == True:
             for obj in self.taken_boxes:
                 if obj.status == 1:
                     obj.changeColor("#1789C2") # Dölj skeppen
-            self.toggle_cheat = False # Om fusket är avslaget
+            self.toggle_cheat = False
         else:
             for obj in self.taken_boxes:
-                if obj.status == 1:
+                if obj.color != "red" and obj.color != "#8A5353":
                     obj.changeColor("#8C8C8C") # Visa skeppen
             self.cheater, self.toggle_cheat = True, True
 
@@ -352,8 +385,9 @@ class Box(Game):
         self.coords = coords # Rutans koordinater.
         self.order = -1 # Rutor utan skepp får order -1
         self.root = root # Rotfönstret.
+        self.color = color
         self.button = Button(
-            self.root, bg=color,
+            self.root, bg=self.color,
             activebackground="blue",
             relief=GROOVE, cursor="target",
             command=lambda coords=self.coords, game=parent: Game.fireInTheHole(game, coords)
@@ -365,7 +399,8 @@ class Box(Game):
     def changeColor(self, color):
         """ Byter färg på rutan.
         Inparameter är färgen man vill byta till. """
-        self.button.configure(bg=color)
+        self.color = color
+        self.button.configure(bg=self.color)
 
 class Ship(Game):
     def __init__(self, length, coords, direction, box_list):
@@ -386,7 +421,7 @@ class Ship(Game):
             c, d = 1, 0
         elif self.direction == "v":
             c, d = 0, 1
-        for l in range(self.length): # Körs för varje ruta i skeppet
+        for l in range(self.length):
             self.includes.append(box_list[self.coords[0]+l*c][self.coords[1]+l*d])
             tests = [(self.coords[0]-1+l*c, self.coords[1]+l*d),(self.coords[0]+1+l*c, self.coords[1]+l*d),(self.coords[0]+l*c, self.coords[1]-1+l*d),(self.coords[0]+l*c, self.coords[1]+1+l*d)]
             for n in tests:
@@ -400,7 +435,7 @@ class Ship(Game):
                 pass
         for n in self.includes:
             if n in self.adjacent:
-                self.adjacent.remove(n) # Plocka bort skeppets rutor från adjacent
+                self.adjacent.remove(n)
 
     def getInbound(self, box_list):
         """ Lägger till alla rutor som skeppet täcker i includes.
@@ -416,11 +451,12 @@ class Ship(Game):
 ########## Main ##########
 def main():
     """ Main-funktion, skapar rotfönster och drar sen igång spelet. """
-    root=Tk()
+    root = Tk()
     game = Game(root)
     root.mainloop()
 
 ############
-main()
+if __name__ == '__main__':
+    main()
 winsound.PlaySound(None, winsound.SND_ASYNC) # Sluta spela musik om rotfönstret stängs
 ############
