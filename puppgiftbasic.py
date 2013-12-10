@@ -113,7 +113,7 @@ class Game:
             corrected = self.controlPastGridEdge(n) # Fixar till kontrollerna om det behövs (om den skulle försöka kontrollera utanför spelplanen eller så).
             tests[tests.index(n)] = (corrected[0], corrected[1])
         try:
-            for k in range(5):
+            for k in range(len(tests)):
                 if self.box_list[tests[k][0]][tests[k][1]].status != 0:
                     control = False
                     break
@@ -185,20 +185,6 @@ class Game:
                 break
         shot_status = "Träff och sänk!"
         self.updateStats(self.shots, self.hits, shot_status)
-        
-    def hitNSunk2(self):
-        """ Om man vill ha popup för varje träff sänk? För tillfället avaktiverad. """
-        self.popup = Toplevel()
-        self.popup.title("Träff & sänk!")
-        self.popup.configure(background=self.BGCOLOR)
-        self.popup.geometry("+520+250")
-        text = Label(
-            self.popup, text="Du sänkte skeppet!",
-            bg=self.BGCOLOR, fg="darkgreen", font=("terminal", 18)).grid(columnspan=2, sticky=N+S+E+W, ipadx=10, ipady=10)
-        ok = self.buttonMaker(self.popup)
-        ok.configure(command=self.popup.destroy)
-        ok.grid(columnspan=2, row=3, sticky=N+S+E+W, padx=10, pady=10)
-        self.popup.resizable(0,0)
             
     def updateStats(self, shots, hits, shot_status):
         """ Uppdaterar texten i rotfönstret med info om träff/miss/sänk, samt antal skott och pricksäkerhet.
@@ -412,10 +398,10 @@ class Ship(Game):
         self.hits = 0 # Antal träffar som skeppet fått.
         self.includes = [] # Lista med rutor som skeppet täcker.
         self.adjacent = [] # Lista med rutor som är runt omkring skeppet.
-        self.getAdjacent(box_list)
+        self.getAdjacentAndInbound(box_list)
 
-    def getAdjacent(self, box_list):
-        """ Lägg till alla rutor runt omkring skeppet i self.adjacent.
+    def getAdjacentAndInbound(self, box_list):
+        """ Lägg till alla rutor runt omkring skeppet i self.adjacent och de rutor som skeppet täcker i includes.
         Inparameter är game.box_list. """
         if self.direction == "h":
             c, d = 1, 0
@@ -428,7 +414,7 @@ class Ship(Game):
                 corrected = Game.controlPastGridEdge(self, n)
                 tests[tests.index(n)] = (corrected[0], corrected[1])
             try:
-                for k in range(4):
+                for k in range(len(tests)): # För varje närliggande som ska testas, testar inte diagonalt
                     if not box_list[tests[k][0]][tests[k][1]] in self.includes:
                         self.adjacent.append(box_list[tests[k][0]][tests[k][1]])
             except IndexError:
@@ -436,17 +422,6 @@ class Ship(Game):
         for n in self.includes:
             if n in self.adjacent:
                 self.adjacent.remove(n)
-
-    def getInbound(self, box_list):
-        """ Lägger till alla rutor som skeppet täcker i includes.
-        Inparameter är game.box_list. """
-        if self.direction == "h":
-            c, d = 1, 0
-        elif self.direction == "v":
-            c, d = 0, 1
-        for l in range(self.length):
-            self.includes.append()
-
 
 ########## Main ##########
 def main():
