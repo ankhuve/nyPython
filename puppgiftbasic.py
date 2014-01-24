@@ -5,7 +5,7 @@
 from tkinter import *
 import winsound, random, string, math
 
-class Game:
+class BattleShip:
     GRIDSIZE = 10 # 10 är standard. Går att välja tal mellan 10 och 26 (längden av engelska alfabetet)
     def __init__(self, root):
         """ Konstruktor, bestämmer variabler och kör igång createGrid, outerPlacementControl och sätter igång spelmusiken. 
@@ -363,7 +363,7 @@ class Game:
                     obj.changeColor("#8C8C8C") # Visa skeppen
             self.cheater, self.toggle_cheat = True, True
 
-class Box(Game):
+class Box(BattleShip):
     def __init__(self, parent, coords, root, color):
         """ Konstruktor, bestämmer variabler och skapar knappen.
         Inparametrar är rutans koordinater, rotfönstret samt rutans färg. """
@@ -376,7 +376,7 @@ class Box(Game):
             self.root, bg=self.color,
             activebackground="blue",
             relief=GROOVE, cursor="target",
-            command=lambda coords=self.coords, game=parent: Game.fireInTheHole(game, coords)
+            command=lambda coords=self.coords, game=parent: BattleShip.fireInTheHole(game, coords)
             )
         self.button.config(width="7",height="3")
         self.button.grid(column=self.coords[0], row=self.coords[1])
@@ -388,7 +388,7 @@ class Box(Game):
         self.color = color
         self.button.configure(bg=self.color)
 
-class Ship(Game):
+class Ship(BattleShip):
     def __init__(self, length, coords, direction, box_list):
         """ Konstruktor, bestämmer variabler och hämtar närliggande rutor.
         Inparametrar: skeppets längd, koordinater, riktning, game.box_list. """
@@ -411,7 +411,7 @@ class Ship(Game):
             self.includes.append(box_list[self.coords[0]+l*c][self.coords[1]+l*d])
             tests = [(self.coords[0]-1+l*c, self.coords[1]+l*d),(self.coords[0]+1+l*c, self.coords[1]+l*d),(self.coords[0]+l*c, self.coords[1]-1+l*d),(self.coords[0]+l*c, self.coords[1]+1+l*d)]
             for n in tests:
-                corrected = Game.controlPastGridEdge(self, n)
+                corrected = BattleShip.controlPastGridEdge(self, n)
                 tests[tests.index(n)] = (corrected[0], corrected[1])
             try:
                 for k in range(len(tests)): # För varje närliggande som ska testas, testar inte diagonalt
@@ -427,7 +427,7 @@ class Ship(Game):
 def main():
     """ Main-funktion, skapar rotfönster och drar sen igång spelet. """
     root = Tk()
-    game = Game(root)
+    game = BattleShip(root)
     root.mainloop()
 
 ############
