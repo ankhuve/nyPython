@@ -1,11 +1,11 @@
 from turtle import *
-from LinkedQ import *
+from listQfile import *
 
 penup()
 setpos(-300,200)
 pendown()
 w = list(range(50))
-q = Queue()
+q = ListQ()
 
 for i in w:
     q.put(i)

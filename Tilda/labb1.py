@@ -30,7 +30,7 @@ class GymClass:
 		string = ""
 		string += "Lokal: "+self.location
 		string += "\nTid: "+self.time
-		string += "\nPasstyp: "+self.typeg
+		string += "\nPasstyp: "+self.type
 		string += "\nRum: "+self.room
 		string += "\nLedare: "+self.leader
 		string += "\nPlatser: "+self.slots

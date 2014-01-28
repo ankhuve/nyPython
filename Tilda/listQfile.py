@@ -1,8 +1,6 @@
 class ListQ(object):
-	"""docstring for ListQ"""
 	def __init__(self):
-		self.hand = []
-		
+		self.hand = []	
 
 	def put(self, n):
 		self.hand.append(n)
