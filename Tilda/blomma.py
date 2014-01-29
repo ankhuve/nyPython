@@ -19,7 +19,7 @@ for i in range(200):
     q.put(x)
 
 right(180)
-while not q.empty():
+while not q.isEmpty():
     x = q.get()
     forward(x)
     left(5)

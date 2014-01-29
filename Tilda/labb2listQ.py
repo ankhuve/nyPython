@@ -11,7 +11,6 @@ class LinkedQ(object):
            Tips: Titta på kursens FAQ (under Hjälp)"""
 
         def put(self,x):
-                # q.hand.append(x)
                 if self.isEmpty == True:
                         self.first = x
                         self.last = x
@@ -55,6 +54,5 @@ for i in range(0,len(k)*2):
 		lq.put(x)
 	else:
 		bord.append(lq.get())
-	# print(q.hand)
 print(bord)
 

@@ -1,4 +1,4 @@
-class ListQ(object):
+class ListQ():
 	def __init__(self):
 		self.hand = []	
 
