@@ -8,7 +8,7 @@ class ListQ():
                 else:
                         self.hand.insert(rev, n)
 
-	def get(self, i):
+	def get(self, i=0):
 		return self.hand.pop(i)
 
 	def isEmpty(self):
