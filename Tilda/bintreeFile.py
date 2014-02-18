@@ -1,67 +1,62 @@
 class Bintree:
     def __init__(self):
-        self.root=None
+        """ Konstruktor. Skapar en rot till trädet. """
+        self.root=None #trädets rot
 
     def put(self, new_value):
-        """skickar sin rotpekare och det nya
-    ordet till en rekursiv funktion putFunc"""
+        """ Skickar sin rotpekare och det nya
+    ordet till en rekursiv funktion putFunc. Inparameter är det nya värdet. """
         self.root=putFunc(self.root, new_value)
 
     def exists(self,value):
+        """Skickar sin rotpekare och ordet till en rekursiv funktion existFunc och
+    returnerar nod som söks, om nod inte finns returneras None.
+    Inparameter är det nya värdet"""
         return existsFunc(self.root, value)
 
     def write(self):
+        """Kör metoden writeFunc med trädets rot som inparameter"""
         writeFunc(self.root)
         print("\n")
 
 class Node:
+    """ Klass för nod. """
     def __init__(self, v):
-        self.value = v
-        self.left = None
-        self.right = None
+        """Skapar en nod som har info om sitt eget värde samt info om noderna till höger resp vänster.
+    Inparameter är värdet"""
+        self.value = v # Nodens värde
+        self.left = None # Nodens "gren" till vänster
+        self.right = None # Nodens "gren" till höger
 
-
-def putFunc(root, value):
-    """ser till att en ny nod skapas på rätt ställe"""
-    if root == None:
-        root = Node(value)
+def putFunc(node, value):
+    """Ser till att en ny nod skapas på rätt ställe. Inparameter är aktuell nod samt det nya värdet.
+    Returnerar uppdaterad nod. """
+    if node is None:
+        return Node(value)
     else:
-        if value > root.value and not root.right:
-            root.right = Node(value)
-        elif value < root.value and not root.left:
-            root.left = Node(value)
+        if value > node.value and not node.right:
+            node.right = Node(value)
+        elif value < node.value and not node.left:
+            node.left = Node(value)
+        elif value > node.value:
+            node.right = putFunc(node.right, value)
         else:
-            if value > root.value:
-                putFunc(root.right, value)
-            else:
-                putFunc(root.left, value)
-
-            
-def existsFunc(root, v):
-    if root == None:
-        return False
-    else:
-        if root.value == v:
-            return True
-        else:
-            if v > root.value and root.right:
-                existsFunc(root.right, v)
-            elif v < root.value and root.left:
-                existsFunc(root.left, v)
-            else:
-                return False
-
-            
-def writeFunc(root):
-    if root == None:
-        print("Det finns inget i trädet.")
-    elif root and not root.left and not root.right:
-        l = []
-        l.append(root.value)
-        print(l)
+            node.left = putFunc(node.left, value)
+        return node
     
-        
-
-
-
-
+def existsFunc(node, v):
+    """Kollar om noden finns i trädet. Inparameter är aktuell nod och det nya värdet.
+    Returnerar noden när den hittats/inte hittats. Noden är None om den inte hittats.""" 
+    if node is None or node.value == v:
+        return node
+    elif v > node.value:
+        return existsFunc(node.right, v)
+    else:
+        return existsFunc(node.left, v)
+            
+def writeFunc(node):
+    """Skriver ut trädets värden. Inparameter aktuell nod"""
+    if node is not None:
+        writeFunc(node.left)
+        print(node.value)
+        writeFunc(node.right)
