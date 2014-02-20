@@ -15,20 +15,35 @@ def main():
                 end = input("Slutord: ")
                 if swe.exists(end):
                     gamla.put(start)
-                    
-                    q.put(start)
+                    q.put(Node(ParentNode(start)))
                     while not q.isEmpty():
+                        way_found = False
                         k = q.get()
-                        children = makeChildren(k)
+                        children = makeChildren(k.value.word)
                         for i in children:
                             if swe.exists(i) and not gamla.exists(i):
-                                print(i)
                                 gamla.put(i)
-                                q.put(i)
+                                q.put(Node(ParentNode(i, k.value)))
                             elif i == end:
-                                print(i, end)
+                                way_found = True
                             else:
                                 pass
+                            if way_found == True:
+                                chain = [k.value.word]
+                                c = 0
+                                while c != 1:
+                                    if isinstance(k, Node):
+                                        chain.append(k.value.parent.word)
+                                        k = k.value.parent
+                                    elif isinstance(k, ParentNode):
+                                        chain.append(k.word)
+                                        k = k.parent
+                                    else:
+                                        c = 1
+                                print("Vägen hittades!")
+                                print(chain)
+                                break
+                        
                     c_1 = 1
                     c_2 = 1
                 else:
@@ -36,6 +51,10 @@ def main():
         else:
             print("Startordet var inte ett giltigt ord. Försök igen.")
 
+class ParentNode:
+    def __init__(self, word, parent = None):
+        self.word = word
+        self.parent = parent
 
 def makeChildren(word):
     ALF = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'å', 'ä', 'ö']

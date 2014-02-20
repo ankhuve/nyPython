@@ -44,8 +44,13 @@ class LinkedQ():
             print("Det finns inga kort i högen.")
         else:
             if rev == 1: # Ta längst fram i kön
-                x = self.first
-                self.first = self.first.next
+                if self.first == self.last:
+                    x = self.first
+                    self.first = None
+                    self.last = None
+                else:
+                    x = self.first
+                    self.first = self.first.next
             else: # Ta längst bak från kön
                 x = self.last
                 c = self.first
