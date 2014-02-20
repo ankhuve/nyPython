@@ -3,7 +3,9 @@ from listQfile import *
 import sys
 
 class ParentNode:
+    """ Klass för nod som har info om förälder. """
     def __init__(self, word, parent = None):
+        """Konstruktor. Sätter attributen till värden. Inparameter är ordet och ev förälder. """
         self.word = word
         self.parent = parent
 
@@ -28,9 +30,8 @@ def main():
                     found = False # Variabel för att kontrollera om ordet har hittats
                     while not q.isEmpty():
                         if found == False:
-                            k = q.get() # Hämta ord
-                            children = makeChildren(k)
-                            j, found = checkThings(swe, used, q, children, end)
+                            k = q.get(-1) # Hämta ord
+                            j, found = depth(swe, used, q, end, k)
                         else:
                             print("Det finns en väg till", end)
                             q.hand = [] # Nollställ kön för att bryta loopen
@@ -44,7 +45,14 @@ def main():
         else:
             print("Startordet var inte ett giltigt ord. Försök igen.")
 
-def checkThings(swe, old, q, children, end):
+
+
+
+def depth(swe, old, q, end, node):
+    """ Kontrollerar om ordet är hittat, om inte så kontrolleras om ordet är korrekt eller använt.
+    Inparametrar är svenskträdet, gamlaträdet, kön, generationen barn och slutordet.
+    Returnerar noden om det är detsamma som sista ordet, None om annars. Returnerar även True om hittat, False annars."""
+    children = makeChildren(node)
     for j in children:
         i = j.word
         if i == end:
@@ -52,7 +60,12 @@ def checkThings(swe, old, q, children, end):
         elif swe.exists(i) and not old.exists(i):
             old.put(i)
             q.put(j)
+            depth(swe, old, q, end, j)
+        elif swe.exists(i) and old.exists(i):
+            pass
+        
     return (None, False)
+
 
 def printChain(j, end):
     li = []
