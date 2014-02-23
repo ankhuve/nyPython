@@ -11,7 +11,7 @@ class ParentNode:
 
 def main():
     """ Huvudprogrammet, innehåller meny och kallar på funktioner för de olika valen. """
-    swe = treeFromFileStuff("word3.txt") # Skapar svenskträdet
+    swe = treeFromFileStuff("word4.txt") # Skapar svenskträdet
     used = Bintree() # Skapar träd för använda ord
     q = ListQ() # Skapar en kö
     c = 0 # Kontrollvariabel
@@ -30,7 +30,7 @@ def main():
                     found = False # Variabel för att kontrollera om ordet har hittats
                     while not q.isEmpty():
                         if found == False:
-                            k = q.get(-1) # Hämta ord
+                            k = q.get() # Hämta ord
                             j, found = depth(swe, used, q, end, k)
                         else:
                             print("Det finns en väg till", end)
@@ -55,22 +55,20 @@ def depth(swe, old, q, end, node):
     for j in children:
         i = j.word
         if i == end:
-            print("Hittades!")
+            print('hittades')
             return (j, True)
         elif swe.exists(i) and not old.exists(i):
+            print(node.word, "->", i)
             old.put(i)
             q.put(j)
-##            n, found = depth(swe, old, q, end, j)
-##            if found == True:
-##                return (n, found)
+            depth(swe, old, q, end, j)
         elif swe.exists(i) and old.exists(i):
             pass
+    print(node.word, "har inga fler barn.")
     return (None, False)
 
 
 def printChain(j, end):
-    """Skapar kedjan, skriver ut kedjan och hur många steg det var.
-    Inparametrar är slutnoden samt slutordet. """
     li = []
     makeChain(j, li)
     li.reverse()
@@ -84,14 +82,11 @@ def printChain(j, end):
     print("Det var", count, "steg.")
 
 def makeChain(j, li):
-    """ Lägger till orden i en lista och kallar på sig själv om det finns en förälder.
-    Inparameter är slutnoden och listan. """
     li.append(j.word)
     if j.parent:
         makeChain(j.parent, li)
 
 def makeChildren(node):
-    """Skapar nya ord för noden som är inparameter. returnerar sedan en lista med de nya noderna."""
     ALPH = "abcdefghijklmnopqrstuvwxyzåäö"
     children = []
     word = node.word
