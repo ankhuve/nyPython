@@ -2,8 +2,8 @@ from linkedQfile import *
 from listQfile import ListQ
 
 def forwardTrick():
-##    q = ListQ()
-    q = LinkedQ()
+    q = ListQ()
+##    q = LinkedQ()
     k = input("Vilka kort vill du lägga till i listan? Separera siffrorna med ett mellanslag: ")
     k = k.split()
     for i in k:
@@ -19,10 +19,10 @@ def forwardTrick():
     printResult(table)
 
 def backwardTrick():
-##    q = ListQ()
-##    hand = ListQ()
-    q = LinkedQ()
-    hand = LinkedQ()
+    q = ListQ()
+    hand = ListQ()
+##    q = LinkedQ()
+##    hand = LinkedQ()
     k = input("Vilka kort vill du lägga till i listan? Separera siffrorna med ett mellanslag: ")
     k = k.split()
     for i in k:

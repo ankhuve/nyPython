@@ -1,5 +1,5 @@
 from tkinter import *; import string; import winsound
-class BattleShip:
+class SoundBoard:
     GRIDSIZE = 6 # 10 är standard. Går att välja tal mellan 10 och 26 (längden av engelska alfabetet)
     def __init__(self, root):
         """ Konstruktor, bestämmer variabler och kör igång createGrid, outerPlacementControl och sätter igång spelmusiken. 
@@ -10,7 +10,6 @@ class BattleShip:
         self.root.title("Sound Board") # Rotfönstrets titel.
         self.root.geometry("+300+0") # Rotfönstrets placering.
         self.createGrid()
-##        winsound.PlaySound("ship n stuff.wav", winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP) # Starta spelmusiken!
         
     def createGrid(self):
         """ Skapar det grafiska rutnätet av knappar, koordinater och text samt skapar fuskknappen (döljs nere i det högra hörnet). """
@@ -39,7 +38,7 @@ class BattleShip:
         Returnerar knappen. """
         return Button(win, text=info, fg=fg, bg=bg, font=font)
     
-class Box(BattleShip):
+class Box(SoundBoard):
     def __init__(self, parent, coords, root, color):
         """ Konstruktor, bestämmer variabler och skapar knappen.
         Inparametrar är rutans koordinater, rotfönstret samt rutans färg. """
@@ -70,7 +69,7 @@ def playSound():
 def main():
     """ Main-funktion, skapar rotfönster och drar sen igång spelet. """
     root = Tk()
-    game = BattleShip(root)
+    game = SoundBoard(root)
     root.mainloop()
 
 ############
