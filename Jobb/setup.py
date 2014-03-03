@@ -14,4 +14,4 @@ setup(  name = "Testprogram",
         version = "0.1",
         description = "My GUI application!",
         options = {"build_exe": build_exe_options},
-        executables = [Executable("first test.py", base=base)])
+        executables = [Executable("first test.py", base="Win32GUI")])

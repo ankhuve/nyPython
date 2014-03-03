@@ -1,6 +1,6 @@
 from tkinter import *; import string; import winsound
 class SoundBoard:
-    GRIDSIZE = 6 # 10 är standard. Går att välja tal mellan 10 och 26 (längden av engelska alfabetet)
+    GRIDSIZE = 10 # 10 är standard. Går att välja tal mellan 10 och 26 (längden av engelska alfabetet)
     def __init__(self, root):
         """ Konstruktor, bestämmer variabler och kör igång createGrid, outerPlacementControl och sätter igång spelmusiken. 
         Inparameter är rotfönstret. """
@@ -52,7 +52,7 @@ class Box(SoundBoard):
             relief=GROOVE,
             command=lambda: playSound()
             )
-        self.button.config(width="10",height="3", padx="10", pady ="10")
+        self.button.config(width="10",height="3", padx="20", pady ="10")
         self.button.grid(column=self.coords[0], row=self.coords[1])
         Grid.columnconfigure(self.root,self.coords[0],weight=1)
 
@@ -69,7 +69,7 @@ def playSound():
 def main():
     """ Main-funktion, skapar rotfönster och drar sen igång spelet. """
     root = Tk()
-    game = SoundBoard(root)
+    app = SoundBoard(root)
     root.mainloop()
 
 ############
