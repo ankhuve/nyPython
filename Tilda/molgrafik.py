@@ -89,6 +89,8 @@ class Molgrafik:
         if self.root!=None:
             self.root.destroy()
         self.root=Tk()
+        self.root.title("Element")
+        self.root.geometry("+10+10")
         Label(self.root,text="  ",font=self.stor,bg="white").pack(side=LEFT,fill=Y)
         self.picture(self.root,p)
         mainloop() #Kommentera bort om du anv. IDLE (IDLE har egen mainloop())

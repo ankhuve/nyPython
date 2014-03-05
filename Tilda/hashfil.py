@@ -30,6 +30,7 @@ class Hashtabell():
                     c = True
             except:
                 print("Sätter in..")
+                print(hash_value, len(self.table))
                 self.table[hash_value] = atom
                 c = True
                 
@@ -50,21 +51,15 @@ class Hashtabell():
             raise KeyError
             
     def createHash(self, name):
-        ALPH = list("abcdefghijklmnopqrstuvwxyzåäö")
-        VALS = [28, 1]
+##        ALPH = list("""abcdefghijklmnopqrstuvwxyzåäö!'#¤%&/()=?\}][{€,*^~¨ôõ~.-"_1234567+890;:ïñãüêúùéóáøàíìçã|""")
+        VALS = [26, 1]
         name = list(name)
         hash_value = 0
         for i in range(len(name)):
-            hash_value += (ALPH.index(name[i].lower())+1)*VALS[i]
+            if i == 0:
+                hash_value += ord(name[i])*VALS[i]
+            else:
+                hash_value += ord(name[i])*1
+##            hash_value += (ALPH.index(name[i].lower())+1)*VALS[i]
         return hash_value%len(self.table)
-##
-##def main(hashtabell, atomlista):
-##    s = input("Atombeteckning: ")
-##    name_list = []
-##    for element in atomlista:
-##        name, weight = element.split()
-##        name_list.append(name)
-##    if s in name_list:
-##        print(hashtabell.get(s).weight)
-##    else:
-##        print("Okänd atom. Försök igen.")
+

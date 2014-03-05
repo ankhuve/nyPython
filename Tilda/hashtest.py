@@ -1,6 +1,6 @@
 #Testar klassen Hashtabell i filen hashfil.py
 from hashfil import Hashtabell
-from labb5 import search
+##from labb5 import search
 
 class Atom:
     def __init__(self, name, weight):
@@ -178,20 +178,4 @@ def knasAtomFinnsInte(hashtabell):
         print(knasnamn, "fanns inte med i hashtabellen.")
         return True
 
-##def main(hashtabell, atomlista):
-##    s = input("Atombeteckning: ")
-##    name_list = []
-##    for element in atomlista:
-##        name, weight = element.split()
-##        name_list.append(name.lower())
-##    if s.lower() in name_list:
-##        print(hashtabell.get(s).weight)
-##    else:
-##        print("Okänd atom. Försök igen.")
         
-atomlista = skapaAtomlista()
-hashtabell = lagraHashtabell(atomlista)
-allaAtomerFinns(hashtabell, atomlista)    
-knasAtomFinnsInte(hashtabell)
-while True:
-    search(hashtabell, atomlista)
