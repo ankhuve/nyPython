@@ -9,6 +9,8 @@ def lasfil(filnamn):
             data = rad.split("<SEP>")
             artist = data[2].strip()
             song = data[3].strip()
+            if song == "":
+                song = "(None)"
             a = ""
             s = ""
             a = a.join(artist.split())
@@ -16,22 +18,12 @@ def lasfil(filnamn):
             songtable.append(a+" "+s)
     return songtable
 
-def hitta(artist, songtable):
+def hitta(artist, hashtabell):
     start = time()
-    print(songtable[artist])
+    print(hashtabell.get(artist))
     stop = time()
     tidhash = stop - start
     return tidhash
-
-songtable = lasfil("unique_tracks.txt")
-##song_list = []
-##for i in songtable:
-##    a = ""
-##    s = ""
-##    a = a.join(artist.split())
-##    s = s.join(songtable[artist].split())
-####    print(a, s)
-##    song_list.append(a+" "+s)
 
 def makeHashtable(song_list):
     """Lagrar atomlistans element i en hashtabell"""
@@ -39,16 +31,20 @@ def makeHashtable(song_list):
     print(" * Lagrar listans atomer i hashtabell...")
     antalElement = len(song_list)
     hashtabell = Hashtabell(antalElement)
+    s = time()
     for element in song_list:
         try:
-            namn, vikt = element.split()
-            nyAtom = Atom(namn, vikt)
-            hashtabell.put(namn, nyAtom)
+            artist, song = element.split()
+            entry = Atom(artist, song)
+            hashtabell.put(artist, entry)
         except:
             print(element, "blev fel.")
-    print(hashtabell)
+    e = time()
+    t = e - s
+    print("Tabellen gjordes på", t, "sekunder.")
     return hashtabell
 
+songtable = lasfil("unique_tracks.txt")
 hashtabell = makeHashtable(songtable)
 artist = "Elude"
 tidhash = hitta(artist, hashtabell)

@@ -3,14 +3,9 @@ from hashtest import *
 
 def search(hashtabell, atomlista):
     s = input("Atombeteckning: ")
-    name_list = []
-    for element in atomlista:
-        name, weight = element.split()
-        name_list.append(name.lower())
-    if s.lower() in name_list:
-        return Ruta(Atom(s.capitalize(), hashtabell.get(s).weight))
-
-    else:
+    try:
+        return Ruta(Atom(s.capitalize(), hashtabell.get(s.capitalize()).weight))
+    except KeyError:
         print("Okänd atom. Försök igen.")
         return None
 

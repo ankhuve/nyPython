@@ -1,3 +1,4 @@
+##import math
 class Hashtabell():
     def __init__(self, elements):
         self.elements = elements
@@ -11,20 +12,24 @@ class Hashtabell():
 
     def makeTable(self, n):
         l = []
+        while not self.isPrime(n):
+            n += 1
         for i in range(n):
             l.append(None)
+        print("Tabellen blev", len(l), "platser stor.")
         return l
 
     def put(self, name, atom):
         hash_value = self.createHash(name)
+        
         c = False
         i = 0
         while not c:
+            hash_value = hash_value % len(self.table)
             i += 1
             try:
                 if self.table[hash_value]:
                     hash_value += i**2
-                    hash_value%len(self.table)
                 else:
                     self.table[hash_value] = atom
                     c = True
@@ -36,30 +41,41 @@ class Hashtabell():
                 
     def get(self, name):
         hash_value = self.createHash(name)
+##        hash_value = hash_value % len(self.table)
         i = 0
         c = False
         try:
             while not c:
+                hash_value = hash_value % len(self.table)
                 if self.table[hash_value].name.lower() == name.lower():
                     c = True
                     return self.table[hash_value]
                 else:
                     i += 1
                     hash_value += i**2
-                    hash_value = hash_value%len(self.table)
+                    print("Inte rätt!")
+##                    hash_value = hash_value%len(self.table)
         except (IndexError, AttributeError):
             raise KeyError
             
-    def createHash(self, name):
-##        ALPH = list("""abcdefghijklmnopqrstuvwxyzåäö!'#¤%&/()=?\}][{€,*^~¨ôõ~.-"_1234567+890;:ïñãüêúùéóáøàíìçã|""")
-        VALS = [26, 1]
-        name = list(name)
+    def createHash(self, key):
+        nums = [6547, 233]
         hash_value = 0
-        for i in range(len(name)):
-            if i == 0:
-                hash_value += ord(name[i])*VALS[i]
-            else:
-                hash_value += ord(name[i])*1
-##            hash_value += (ALPH.index(name[i].lower())+1)*VALS[i]
-        return hash_value%len(self.table)
+        for i in range(len(key)):
+            hash_value += ord(key[i]) * (nums[0] + ord(key[i]))
+            nums[0] = nums[1] % (hash_value*nums[0])
+        return hash_value
 
+    def isPrime(self, key):
+        import math
+        prime = None
+        while prime == None:
+            for i in range(2, math.ceil(key**0.5)+1):
+                if key==i:
+                    prime = True
+                    return prime
+                elif key%i == 0:
+                    prime = False
+                    return prime
+            prime = True
+        return prime
