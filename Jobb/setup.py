@@ -16,4 +16,4 @@ setup(  name = "Sound Board",
         author='Erik Forsberg',
         author_email='erik.c.forsberg@gmail.com',
         options = {"build_exe": build_exe_options},
-        executables = [Executable("SoundBoard.py", base="Win32GUI")])
+        executables = [Executable("SoundBoard.py", base=base)])
