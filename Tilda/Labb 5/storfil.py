@@ -24,6 +24,8 @@ def find(artist, hashtable):
     """Funktion för att söka efter en artist. Inparameter är hashtabellen.
     Returnerar tiden det tog för sökningen."""
     start = time()
+##    for i in hashtable.get(artist):
+##        print(i)
     print(hashtable.get(artist))
     stop = time()
     time_hash = stop - start
@@ -51,9 +53,9 @@ def makeHashtable(song_list):
 def main():
     """ Huvudfunktionen. Skapar hashtabellen och testar att allt är korrekt.
     Startar även search-funktionen som letar upp artisten och visar hur lång tid det tog. """
-    songtable = readFile("unique_tracks.txt")
+    songtable = readFile("unique_tracks1.txt")
     hashtable = makeHashtable(songtable)
-    artist = "Elude"
+    artist = "Lynda"
     time_hash = find(artist, hashtable)
     print(time_hash)
 

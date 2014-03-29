@@ -1,4 +1,3 @@
-##import math
 class Hashtable():
     def __init__(self, elements):
         self.elements = elements
@@ -19,9 +18,8 @@ class Hashtable():
         print("Tabellen blir", len(l), "platser stor.")
         return l
 
-    def put(self, name, atom):
-        hash_value = self.createHash(name)
-        
+    def put(self, key, value):
+        hash_value = self.createHash(key)
         c = False
         i = 0
         while not c:
@@ -31,20 +29,20 @@ class Hashtable():
                 if self.table[hash_value]:
                     hash_value += i**2
                 else:
-                    self.table[hash_value] = atom
+                    self.table[hash_value] = value
                     c = True
             except:
-                self.table[hash_value] = atom
+                self.table[hash_value] = value
                 c = True
                 
-    def get(self, name):
-        hash_value = self.createHash(name)
+    def get(self, key):
+        hash_value = self.createHash(key)
         i = 0
         c = False
         try:
             while not c:
                 hash_value = hash_value % len(self.table)
-                if self.table[hash_value].name.lower() == name.lower():
+                if self.table[hash_value].name.lower() == key.lower():
                     c = True
                     return self.table[hash_value]
                 else:
@@ -55,10 +53,11 @@ class Hashtable():
             
     def createHash(self, key):
         nums = [6547, 233]
-        hash_value = 0
+        hash_value = 1
         for i in range(len(key)):
-            hash_value += ord(key[i]) * (nums[0] + ord(key[i]))
-            nums[0] = nums[1] % (hash_value*nums[0])
+            hash_value *= (ord(key[i]) * (nums[0] + ord(key[i])))
+            hash_value = hash_value % 1000000001
+            nums[0] =(hash_value*nums[0]) % nums[1]
         return hash_value
 
     def isPrime(self, key):

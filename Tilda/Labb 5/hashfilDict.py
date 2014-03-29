@@ -1,4 +1,4 @@
-class Hashtabell():
+class Hashtable():
     """Klass för hashtabellen."""
     def __init__(self, elements):
         """Konstruktor. Inparameter är antal element. """
