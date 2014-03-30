@@ -133,13 +133,16 @@ class MolQOps():
 		self.readFormula()
 
 	def readFormula(self):
+		print("Startar readFormula")
 		self.readMol()
+		print("Klar med readMol")
 		if self.q.peek() == "(":
 			self.q.get()
 
 	def readMol(self):
 		print("Startar readMol")
 		self.readGroup()
+		print("Klar med readGroup")
 		if not self.q.peek() == None:
 			if not self.q.peek() == ")":
 				self.readMol()
@@ -155,7 +158,7 @@ class MolQOps():
 	def readGroup(self):
 		print("Startar readGroup")
 		if not self.q.peek() == None:
-			print("Det finns nat i kon", str(self.q))
+			print("Queue:", str(self.q))
 			if self.q.peek() == "(": # Startar en molekyl
 				self.q.get()
 				self.readMol()
@@ -185,15 +188,16 @@ class MolQOps():
 		return num
 
 	def readAtom(self):
+		print("Startar readAtom")
 		atom = self.q.get().value
 		if not self.q.isEmpty():
 			if self.q.peek() in self.ALPH.lower():
 				atom += self.q.get().value
 				if self.existsAtom(atom): # Om atomen godkanns
-					self.readMol()
+					pass
 			elif self.q.peek() in self.ALPH:
 				if self.existsAtom(atom):
-					self.readAtom()
+					pass
 				else:
 					raise ErrorInSyntax("Okand atom", self.q)
 		if self.existsAtom(atom):
@@ -203,9 +207,37 @@ class MolQOps():
 
 	def existsAtom(self, atom):
 		if atom in self.ATOMS:
+			print("Atomen fanns")
 			return True
 
-in_str = ")"
+in_str = "Ge)"
 m = MolQOps(in_str)
 # createMolQ(in_str, molQ)
 print("Formeln ar syntaktiskt korrekt")
+
+
+# Na
+# H2O
+# Si(C3(COOH)2)4(H2O)7
+# Na332
+# C(Xx4)5
+# C(OH4)C
+# C(OH4C
+# H2O)Fe
+# H0
+# H1C
+# H02C
+# Nacl
+# a
+# (Cl)2)3
+# )
+# 2
+# si
+# Si)
+# (Si3)
+# Si(C3
+# ()
+# Si103
+# Si10340
+# Si10(C)3
+# Si(C)
