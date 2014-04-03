@@ -1,8 +1,7 @@
 from linkedQfile import *
+from molgrafik import *
 
- 
-
-############## Programmets borjan ################
+############## Programmets början ################
 
 class MolQOps():
 	def __init__(self, in_str):
@@ -11,118 +10,13 @@ class MolQOps():
 		self.open = 0
 		self.NUMS = ["0","1","2","3","4","5","6","7","8","9"]
 		self.ALPH = "ACBDEFGHIJKLMNOPQRSTUVWXYZ"
-		self.ATOMS = ["H",
-"He",
-"Li",
-"Be",
-"B",
-"C",
-"N",
-"O",
-"F",
-"Ne",
-"Na",
-"Mg",
-"Al",
-"Si",
-"P",
-"S",
-"Cl",
-"K",
-"Ar",
-"Ca",
-"Sc",
-"Ti",
-"V",
-"Cr",
-"Mn",
-"Fe",
-"Ni",
-"Co",
-"Cu",
-"Zn",
-"Ga",
-"Ge",
-"As",
-"Se",
-"Br",
-"Kr",
-"Rb",
-"Sr",
-"Y",
-"Zr",
-"Nb",
-"Mo",
-"Tc",
-"Ru",
-"Rh",
-"Pd",
-"Ag",
-"Cd",
-"In",
-"Sn",
-"Sb",
-"I",
-"Te",
-"Xe",
-"Cs",
-"Ba",
-"La",
-"Ce",
-"Pr",
-"Nd",
-"Pm",
-"Sm",
-"Eu",
-"Gd",
-"Tb",
-"Dy",
-"Ho",
-"Er",
-"Tm",
-"Yb",
-"Lu",
-"Hf",
-"Ta",
-"W",
-"Re",
-"Os",
-"Ir",
-"Pt",
-"Au",
-"Hg",
-"Tl",
-"Pb",
-"Bi",
-"Po",
-"At",
-"Rn",
-"Fr",
-"Ra",
-"Ac",
-"Pa",
-"Th",
-"Np",
-"U",
-"Am",
-"Pu",
-"Cm",
-"Bk",
-"Cf",
-"Es",
-"Fm",
-"Md",
-"No",
-"Lr",
-"Rf",
-"Db",
-"Hs",
-"Sg",
-"Bh",
-"Mt",
-"Rg",
-"Ds",
-"Cn"]
+		self.ATOMS = ["H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S",
+				"Cl","K","Ar","Ca","Sc","Ti","V","Cr","Mn","Fe","Ni","Co","Cu","Zn","Ga","Ge",
+				"As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd",
+				"In","Sn","Sb","I","Te","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd",
+				"Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg",
+				"Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Pa","Th","Np","U","Am","Pu","Cm",
+				"Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Hs","Sg","Bh","Mt","Rg","Ds","Cn"]
 		self.createMolQ(in_str)
 
 	def createMolQ(self, in_str):
@@ -159,6 +53,7 @@ class MolQOps():
 					self.readMol()
 
 	def readGroup(self):
+		box = Ruta()
 		if not self.q.peek() == None:
 			if self.q.peek() == "(": # Startar en molekyl
 				self.open += 1
@@ -243,65 +138,29 @@ class MolQOps():
 		if atom in self.ATOMS:
 			return True
 
-	def readLetter(self):
-		if self.q.peek() in self.ALPH:
-			self.readAtom()
-		elif self.q.peek() == "(":
-			self.open += self.q.get()
-			self.q.readMol()
-		elif self.q.peek() == ")":
-			self.open += self.q.get()
-		else:
-			raise SyntaxError("Felaktig gruppstart" + " vid radslutet " + str(self.q))
-
 
 ###### Lista med testfall #######
-li = ["Na",
-"H2O",
-"Si(C3(COOH)2)4(H2O)7",
-"Na332",
-"C(Xx4)5",
-"C(OH4)C",
-"C(OH4C",
-"H2O)Fe",
-"H0",
-"H1C",
-"H02C",
-"Nacl",
-"a",
-"(Cl)2)3",
-")",
-"2",
-"si",
-"Si)",
-"(Si3)",
-"Si(C3",
-"()",
-"Si103",
-"",
-"Si10340",
-"Si(C)",
-"!¤%&&%/=?",
-"()3",
-"C(Xx4",
-"#"]
+li = ["Na","H2O","Si(C3(COOH)2)4(H2O)7","Na332","C(Xx4)5","C(OH4)C","C(OH4C","H2O)Fe","H0",
+"H1C","H02C","Nacl","a","(Cl)2)3",")","2","si","Si)","(Si3)","Si(C3","()","Si103","","Si10340",
+"Si(C)","!¤%&&%/=?","()3","C(Xx4","#"]
 ######################
 
 in_str = ""
+mg = Molgrafik()
 
 # För att testa med vanlig input
-# while in_str != "#":
-# 	in_str = input()
-# 	try:
-# 			MolQOps(in_str)
-# 	except SyntaxError as msg:
-# 			print(msg)
+while in_str != "#":
+	in_str = input("Molekyl: ")
+	try:
+			MolQOps(in_str)
+	except SyntaxError as msg:
+			print(msg)
 
-# För att testa hela listan med testfallen
-for i in li:
-	in_str = i
-	if in_str != "#":
-		try:
-				MolQOps(in_str)
-		except SyntaxError as msg:
-				print(msg)
+# # För att testa hela listan med testfallen
+# for i in li:
+# 	in_str = i
+# 	if in_str != "#":
+# 		try:
+# 				MolQOps(in_str)
+# 		except SyntaxError as msg:
+# 				print(msg)

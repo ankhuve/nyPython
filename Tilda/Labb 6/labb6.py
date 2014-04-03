@@ -357,19 +357,19 @@ li = ["Na",
 
 in_str = ""
 
-## För att testa med vanlig input
-# while in_str != "#":
-# 	in_str = input()
-# 	try:
-# 			MolQOps(in_str)
-# 	except SyntaxError as msg:
-# 			print(msg)
+# För att testa med vanlig input
+while in_str != "#":
+        in_str = input()
+        try:
+                        MolQOps(in_str)
+        except SyntaxError as msg:
+                        print(msg)
 
-# För att testa hela listan med testfallen
-for i in li:
-	in_str = i
-	if in_str != "#":
-		try:
-				MolQOps(in_str)
-		except SyntaxError as msg:
-				print(msg)
+### För att testa hela listan med testfallen
+##for i in li:
+##	in_str = i
+##	if in_str != "#":
+##		try:
+##				MolQOps(in_str)
+##		except SyntaxError as msg:
+##				print(msg)
