@@ -84,7 +84,14 @@ class Molgrafik:
             self.streck(uppruta)
             self.picture(rest,p.next)
 
-    def show(self,p):
+    def totalWeight(self, master, weight):
+        big = self.ram(master, LEFT)
+        box = Frame(big, bg = "lightblue", borderwidth=2,relief=GROOVE)
+        box.pack(side=RIGHT, padx=30)
+        Label(box,text="Totalvikt: "+str(weight),font=self.stor,bg="lightblue").pack()
+
+
+    def show(self,p, weight):
         """ Ritar hela bilden. Parametrar: p (referens till datastrukturen som ska ritas) """
         if self.root!=None:
             self.root.destroy()
@@ -93,4 +100,5 @@ class Molgrafik:
         self.root.geometry("+10+10")
         Label(self.root,text="  ",font=self.stor,bg="white").pack(side=LEFT,fill=Y)
         self.picture(self.root,p)
+        self.totalWeight(self.root, weight)
         # mainloop() #Kommentera bort om du anv. IDLE (IDLE har egen mainloop())

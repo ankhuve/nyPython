@@ -1,10 +1,13 @@
 from linkedQfile import *
 from molgrafik import *
+from hashtest import *
+
 ############## Programmets borjan ################
 
 class MolReader():
 	def __init__(self, in_str):
 		self.q = LinkedQ()
+		self.in_str = in_str
 		self.mol = None
 		self.NUMS = ["0","1","2","3","4","5","6","7","8","9"]
 		self.ALPH = "ACBDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -15,25 +18,27 @@ class MolReader():
 				"Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg",
 				"Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Pa","Th","Np","U","Am","Pu","Cm",
 				"Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Hs","Sg","Bh","Mt","Rg","Ds","Cn"]
+		self.atom_list = skapaAtomlista()
+		self.hash_table = lagraHashtabell(self.atom_list)
 		self.data = self.createMolQ(in_str)
-		# self.mg.show(self.createMolQ(in_str))
 
 	def createMolQ(self, in_str):
 		for i in in_str:
 			self.q.put(Node(i))
-		mol = self.readFormula()
-		return mol
+		self.mol = self.readFormula()
+		return self.mol
 
 	def readFormula(self):
 		mol = self.readMol()
-		print("Formeln är syntaktiskt korrekt")
+		if self.q.peek() == ")":
+			raise SyntaxError ("Felaktig gruppstart vid radslutet " + str(self.q))
 		return mol
 
 	def readMol(self):
 		if self.q.peek() == None:
-			return True
+			return None
 		mol = self.readGroup()
-		if self.q.peek() != None:
+		if self.q.peek() != None and self.q.peek() != ")":
 			mol.next = self.readMol()
 		return mol
 
@@ -51,7 +56,6 @@ class MolReader():
 			raise SyntaxError("Saknad stor bokstav vid radslutet " + str(self.q))
 		else:
 			if self.q.peek() not in self.ALPH:
-				print("keff")
 				raise SyntaxError("Felaktig gruppstart vid radslutet " + str(self.q))
 			box.atom = self.readAtom()
 			if self.q.peek() != None and self.q.peek() in self.NUMS:
@@ -59,7 +63,6 @@ class MolReader():
 		return box
 			
 	def readNum(self):
-		print("HA")
 		num = ""
 		if self.q.peek() == None or self.q.peek() not in self.NUMS:
 			raise SyntaxError("Saknad siffra vid radslutet " + str(self.q))
@@ -91,7 +94,6 @@ class MolReader():
 			if not self.existsAtom(atom):
 				raise SyntaxError("Okänd atom vid radslutet " + str(self.q))
 		else:
-			print("lol")
 			raise SyntaxError("Saknad stor bokstav vid radslutet " + atom + str(self.q))
 		return atom
 		
@@ -99,31 +101,37 @@ class MolReader():
 		if atom in self.ATOMS:
 			return True
 
+	def weight(self, mol):
+		if mol:
+			if mol.atom == "( )":
+				weight = self.weight(mol.down) * mol.num
+			else:
+				weight = mol.num * self.hash_table.get(mol.atom).weight
+			weight += self.weight(mol.next)
+			return weight
+		else:
+			return 0
 
-###### Lista med testfall #######
-li = ["Na","H2O","Si(C3(COOH)2)4(H2O)7","Na332","C(Xx4)5","C(OH4)C","C(OH4C","H2O)Fe","H0",
-"H1C","H02C","Nacl","a","(Cl)2)3",")","2","si","Si)","(Si3)","Si(C3","()","Si103","","Si10340",
-"Si(C)","!¤%&&%/=?","()3","C(Xx4","#"]
-######################
-
-in_str = ""
-
-# För att testa med vanlig input
-mg = Molgrafik()
-while in_str != "#":
-	
-	in_str = input()
-	try:
-			m = MolReader(in_str)
-			mg.show(m.data)
-	except SyntaxError as msg:
-			print(msg)
-mg.root.destroy()
-# # För att testa hela listan med testfallen
-# for i in li:
-# 	in_str = i
-# 	if in_str != "#":
-# 		try:
-# 				MolReader(in_str)
-# 		except SyntaxError as msg:
-# 				print(msg)
+def main():
+	###### Lista med testfall #######
+	li = ["Na","H2O","Si(C3(COOH)2)4(H2O)7","Na332","C(Xx4)5","C(OH4)C","C(OH4C","H2O)Fe","H0",
+	"H1C","H02C","Nacl","a","(Cl)2)3",")","2","si","Si)","(Si3)","Si(C3","()","Si103","","Si10340",
+	"Si(C)","!¤%&&%/=?","()3","C(Xx4","#"]
+	######################
+	in_str = ""
+	mg = Molgrafik()
+	while True:
+		in_str = input()
+		if in_str != "#":
+			try:
+					m = MolReader(in_str)
+					print("Formeln är syntaktiskt korrekt")
+					weight = m.weight(m.mol)
+					print("Molekylens vikt:", weight)
+					mg.show(m.data, weight)
+			except SyntaxError as msg:
+					print(msg)
+		else:
+			break
+	mg.root.destroy()
+main()

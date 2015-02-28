@@ -15,7 +15,7 @@ class Hashtable():
             n += 1
         for i in range(n):
             l.append(None)
-        #print("Tabellen blir", len(l), "platser stor.")
+        # print("Tabellen blir", len(l), "platser stor.")
         return l
 
     def put(self, key, value):
